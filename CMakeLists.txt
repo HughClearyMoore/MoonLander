@@ -17,11 +17,26 @@ FetchContent_Declare(
     GIT_TAG main
 )
 
-FetchContent_MakeAvailable(STI)
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 7b6aead9fb88b3623e3b3725ebb42670cbe4c579
+)
+
+FetchContent_Declare(
+    glad
+    GIT_REPOSITORY https://github.com/Dav1dde/glad.git
+    GIT_TAG e86f90457371c6233053bacf0d6f486a51ddcd67
+)
+
+FetchContent_MakeAvailable(STI glfw glad)
 
 add_executable(MoonLander "${CMAKE_SOURCE_DIR}/src/MoonLander.c")
 
 add_subdirectory(src)
 
-target_link_libraries(MoonLander PRIVATE STI)
+target_link_libraries(MoonLander PRIVATE STI glfw glad)
+
+
+
 

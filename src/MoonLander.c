@@ -1,25 +1,30 @@
 #include <stdio.h>
+#include <assert.h>
 
-#include <DynArray.h>
-
-static void IntPrinter(int* i, int* count)
-{
-	printf("Array['%d'] = %d\n", *i, (*count)++);
-}
+#include <GLFW/glfw3.h>
 
 int main(int argc, char** argv)
 {
-	DynArray arr = DynArrayCreate(sizeof(int), 16, NULL);
+	int glfw_result = glfwInit();
 
-	for (int i = 0; i < 10; ++i)
+	assert(glfw_result == GLFW_TRUE && "Failed to initialise GLFW");
+
+	GLFWwindow* window = glfwCreateWindow(600, 480, "Moon Lander", NULL, NULL);
+
+	while (!glfwWindowShouldClose(window))
 	{
-		DynArrayPush(&arr, &i);
+		glfwPollEvents();
+
+
+
+
 	}
 
-	int count = 0;
-	DynArrayForEach(&arr, &IntPrinter, &count);
 
-	DynArrayDestroy(&arr);
 
+
+	glfwDestroyWindow(window);
+
+	glfwTerminate();
 	return 0x0;
 }
