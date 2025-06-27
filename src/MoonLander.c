@@ -1,30 +1,17 @@
-#include <stdio.h>
-#include <assert.h>
+#include "MLCore.h"
 
-#include <GLFW/glfw3.h>
+#define GAME_WIDTH 640
+#define GAME_HEIGHT 480
+
 
 int main(int argc, char** argv)
 {
-	int glfw_result = glfwInit();
+	Game game = GameCreate(GAME_WIDTH, GAME_HEIGHT, "Moon Lander");
+	glfwSetWindowUserPointer(game.window, &game);
 
-	assert(glfw_result == GLFW_TRUE && "Failed to initialise GLFW");
+	GameStart(&game);
 
-	GLFWwindow* window = glfwCreateWindow(600, 480, "Moon Lander", NULL, NULL);
+	GameDestroy(&game);
 
-	while (!glfwWindowShouldClose(window))
-	{
-		glfwPollEvents();
-
-
-
-
-	}
-
-
-
-
-	glfwDestroyWindow(window);
-
-	glfwTerminate();
 	return 0x0;
 }

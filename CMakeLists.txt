@@ -29,13 +29,19 @@ FetchContent_Declare(
     GIT_TAG e86f90457371c6233053bacf0d6f486a51ddcd67
 )
 
-FetchContent_MakeAvailable(STI glfw glad)
+FetchContent_Declare(
+    cglm
+    GIT_REPOSITORY https://github.com/recp/cglm.git
+    GIT_TAG 144d1e7c29b3b0c6dede7917a0476cc95248559c
+)
+
+FetchContent_MakeAvailable(STI glfw glad cglm)
 
 add_executable(MoonLander "${CMAKE_SOURCE_DIR}/src/MoonLander.c")
 
 add_subdirectory(src)
 
-target_link_libraries(MoonLander PRIVATE STI glfw glad)
+target_link_libraries(MoonLander PRIVATE STI glfw glad cglm)
 
 
 
