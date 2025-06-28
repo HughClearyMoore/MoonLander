@@ -2,12 +2,6 @@
 
 #define HASH_MAP_BUCKET_SIZE 128
 
-static void MeshDeleter(Mesh* entry)
-{
-	MLMeshDestroy(entry);
-	glDeleteBuffers(1, &entry->VBO);
-}
-
 MeshManager MLMeshManagerCreate()
 {
 	MeshManager manager = { 0 };
@@ -17,7 +11,7 @@ MeshManager MLMeshManagerCreate()
 		HASH_MAP_BUCKET_SIZE,
 		&HashMapFNV1AHash,
 		&HashMapStringCmp,
-		&MeshDeleter
+		&MLMeshDestroy
 	);
 
 	return manager;

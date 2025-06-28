@@ -28,4 +28,8 @@ void MLMeshDestroy(Mesh* mesh)
 {
 	assert(mesh && "Tried to delete null mesh");
 	DynArrayDestroy(&mesh->vertices);
+	glDeleteBuffers(1, &mesh->VBO);
+	glDeleteVertexArrays(1, &mesh->VAO);
+
+	*mesh = (Mesh){ 0 };
 }
