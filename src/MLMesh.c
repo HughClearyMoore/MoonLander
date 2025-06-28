@@ -4,21 +4,22 @@
 
 #include "MLTypes.h"
 
-Mesh MLMeshCreateFromCArray(float verts[], size_t count)
+Mesh MLMeshCreateFromCArray(float verts[], size_t count, size_t vertex_byte_size)
 {
-	Mesh mesh = MLMeshCreate(count);
+	Mesh mesh = MLMeshCreate(count, vertex_byte_size);
 
 	DynArrayBatchPush(&mesh.vertices, verts, count, 0);	
 
 	return mesh;
 }
 
-Mesh MLMeshCreate(size_t vertex_count)
+Mesh MLMeshCreate(size_t vertex_count, size_t vertex_byte_size)
 {
 	Mesh mesh = { 0 };
 	mesh.vertex_count = vertex_count;
+	mesh.vertex_byte_size = vertex_byte_size;
 
-	mesh.vertices = DynArrayCreate(sizeof(Vertex), vertex_count, NULL);
+	mesh.vertices = DynArrayCreate(vertex_byte_size, vertex_count, NULL);
 
 	return mesh;
 }

@@ -2,11 +2,10 @@
 
 #include "MLTypes.h"
 
-Model MLModelCreate(Mesh* mesh, GLuint VBO, ShaderProgram shader_program)
+Model MLModelCreate(Mesh* mesh, ShaderProgram shader_program)
 {
 	Model model = { 0 };
 	model.mesh = mesh;
-	model.VBO = VBO;
 	model.shader_program = shader_program;
 
 	return model;
@@ -19,14 +18,16 @@ void MLModelDestroy(Model* model)
 
 void MLModelBind(Model* model)
 {
-	glBindBuffer(GL_ARRAY_BUFFER, model->VBO);
+	glBindVertexArray(model->mesh->VAO);
+	//glBindBuffer(GL_ARRAY_BUFFER, model->mesh_entry->VBO);
 	glUseProgram(model->shader_program.id);
 }
 
 void MLModelUnbind(Model* model)
 {
 	glUseProgram(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 void MLModelDraw(Model* model)

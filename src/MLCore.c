@@ -48,11 +48,16 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 
 	glfwSetFramebufferSizeCallback(game.window, &WindowResizeCallback);
 
+
+	game.mesh_manager = MLMeshManagerCreate();
+
 	return game;
 }
 
 void GameDestroy(Game* game)
 {
+
+	MLMeshManagerDestroy(&game->mesh_manager);
 
 	glfwDestroyWindow(game->window);
 	STIStringDestroy(&game->title);
@@ -90,23 +95,13 @@ void GameStart(Game* game)
 		0.0f, 0.5f, 0.0f
 	};
 
-	Mesh mesh = MLMeshCreateFromCArray(vertices, sizeof(vertices) / sizeof(Vertex));
+	Mesh mesh = MLMeshCreateFromCArray(vertices, sizeof(vertices) / sizeof(Vertex), sizeof(Vertex));
 
-	GLuint VAO;
-	glGenVertexArrays(1, &VAO);
+	MLMeshManagerAddMesh(&game->mesh_manager, mesh, "triangle");
 
-	GLuint VBO;
-	glGenBuffers(1, &VBO);
+	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "triangle");
 
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size * sizeof(Vertex), mesh.vertices.data, GL_STATIC_DRAW);
-	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-	glEnableVertexAttribArray(0);	
-
-	Model model = MLModelCreate(&mesh, VBO, program);
+	Model model = MLModelCreate(entry, program);
 
 	while (!glfwWindowShouldClose(game->window) && game->is_running)
 	{
@@ -117,14 +112,7 @@ void GameStart(Game* game)
 		MLModelDraw(&model);
 
 		glfwSwapBuffers(game->window);
-	}
-
-	glBindBuffer(GL_STATIC_DRAW, 0);
-	glBindVertexArray(0);
-
-	glDeleteBuffers(1, &VBO);
-	glDeleteVertexArrays(1, &VAO);
-
-	MLMeshDestroy(&mesh);
+	}	
+	
 	MLProgramDestroy(&program);
 }

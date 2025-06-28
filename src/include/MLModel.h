@@ -7,12 +7,11 @@
 
 typedef struct Model
 {
-	Mesh* mesh;	
-	GLuint VBO;
+	Mesh* mesh;		
 	ShaderProgram shader_program;
 } Model;
 
-Model MLModelCreate(Mesh* mesh, GLuint VBO, ShaderProgram shader_program);
+Model MLModelCreate(Mesh* mesh, ShaderProgram shader_program);
 void MLModelDestroy(Model* model);
 
 void MLModelBind(Model* model);

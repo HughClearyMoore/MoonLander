@@ -7,6 +7,7 @@ set(HEADERS
     "include/MLColours.h"
     "include/MLMesh.h"
     "include/MLModel.h"
+    "include/MLMeshManager.h"
 )
 
 set(SOURCES
@@ -14,6 +15,7 @@ set(SOURCES
     "MLShader.c"
     "MLMesh.c"
     "MLModel.c"
+    "MLMeshManager.c"
 )
 
 set(DEFS
