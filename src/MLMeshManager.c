@@ -32,7 +32,9 @@ void MLMeshManagerAddMesh(MeshManager* manager, Mesh mesh, const char* name)
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
 	glBufferData(GL_ARRAY_BUFFER, mesh.vertex_count * mesh.vertex_byte_size, mesh.vertices.data, GL_STATIC_DRAW);
 		
-	glVertexAttribPointer(0, mesh.vertex_byte_size / sizeof(float), GL_FLOAT, GL_FALSE, mesh.vertex_byte_size, (void*)0);
+	// a vertex has 3 parts the vertex (first 3) the normals (next 3) the uvs (next 2)
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, mesh.vertex_byte_size, (void*)0);
 	glEnableVertexAttribArray(0);
 	
 	glBindVertexArray(0);

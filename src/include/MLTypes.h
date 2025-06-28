@@ -2,7 +2,7 @@
 
 typedef struct Vertex
 {
-	float x;
-	float y;
-	float z;
+	float x, y, z;
+	float xn, yn, zn;
+	float u, v;
 } Vertex;

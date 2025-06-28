@@ -10,6 +10,12 @@
 #include "MLTypes.h"
 #include "MLModel.h"
 
+#include "MLOBJLoader.h"
+
+#include <stdio.h>
+
+#define DRAW_DEBUG 0
+
 static void WindowResizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
@@ -68,13 +74,38 @@ void GameDestroy(Game* game)
 
 void GameStart(Game* game)
 {
+	
+	DynArray obj = MLLoadOBJFile(STI_StringViewCreateFromCString("../data/meshes/triangle.obj"));
+	DynArray obj2 = MLLoadOBJFile(STI_StringViewCreateFromCString("../data/meshes/cube.obj"));
+	DynArray obj3 = MLLoadOBJFile(STI_StringViewCreateFromCString("../data/meshes/teapot.obj"));
+
+	Mesh triangle_mesh = MLMeshCreateFromCArray(obj.data, DynArraySize(&obj), sizeof(Vertex));
+	Mesh cube_mesh = MLMeshCreateFromCArray(obj2.data, DynArraySize(&obj2), sizeof(Vertex));
+	Mesh teapot_mesh = MLMeshCreateFromCArray(obj3.data, DynArraySize(&obj3), sizeof(Vertex));
+	
+	DynArrayDestroy(&obj);
+	DynArrayDestroy(&obj2);
+	DynArrayDestroy(&obj3);
+
+
 	game->is_running = STI_TRUE;
 
 	glClearColor(
 		ML_Colour_TardisBlue.r,
 		ML_Colour_TardisBlue.g,
 		ML_Colour_TardisBlue.b,
-		1.0f);	
+		1.0f);
+
+	glEnable(GL_DEPTH_TEST);
+
+#if DRAW_DEBUG
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glLineWidth(3.0);
+
+#endif
+
+
 
 	ShaderBuilder builder = MLShaderBuilderCreate();
 
@@ -98,8 +129,11 @@ void GameStart(Game* game)
 	Mesh mesh = MLMeshCreateFromCArray(vertices, sizeof(vertices) / sizeof(Vertex), sizeof(Vertex));
 
 	MLMeshManagerAddMesh(&game->mesh_manager, mesh, "triangle");
+	MLMeshManagerAddMesh(&game->mesh_manager, triangle_mesh, "triangle_obj");
+	MLMeshManagerAddMesh(&game->mesh_manager, cube_mesh, "cube");
+	MLMeshManagerAddMesh(&game->mesh_manager, teapot_mesh, "teapot");
 
-	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "triangle");
+	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "teapot");
 
 	Model model = MLModelCreate(entry, program);
 
@@ -107,7 +141,7 @@ void GameStart(Game* game)
 	{
 		glfwPollEvents();
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		MLModelDraw(&model);
 
