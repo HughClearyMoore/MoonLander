@@ -37,11 +37,13 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(STI glfw glad cglm)
 
+find_package(OpenGL REQUIRED)
+
 add_executable(MoonLander "${CMAKE_SOURCE_DIR}/src/MoonLander.c")
 
 add_subdirectory(src)
 
-target_link_libraries(MoonLander PRIVATE STI glfw glad cglm)
+target_link_libraries(MoonLander PRIVATE STI glfw glad cglm OpenGL::GL)
 
 
 
