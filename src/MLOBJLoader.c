@@ -198,17 +198,11 @@ static void ParseLine(void* string_ptr, void* ctx)
 
 	for (size_t count = 0; token != NULL; ++count)
 	{
-		size_t token_length = strlen(token);
-
 		// for now assume in order
 		// and assume we only care about v
 		if (count == 0)
 		{
-			if (token_length != 1)
-			{
-				continue;
-			}
-			else if (strcmp(token, "v") == 0)
+			if (strcmp(token, "v") == 0)
 			{
 				type = VERTEX;
 			}
