@@ -143,7 +143,7 @@ static DynArray ParseFace(char* token_in, DynArray* vertices, DynArray* vertex_n
 
 		if (packed_vertex[1])
 		{
-			size_t idx = (packed_vertex[1] - 1) * 3;
+			size_t idx = (packed_vertex[1] - 1) * 2;
 			v.u = *(float*)DynArrayGet(vertex_textures, idx + 0);
 			v.v = *(float*)DynArrayGet(vertex_textures, idx + 1);
 		}
@@ -202,6 +202,12 @@ static void ParseLine(void* string_ptr, void* ctx)
 		// and assume we only care about v
 		if (count == 0)
 		{
+			/*
+			if (strlen(token) != 1)
+			{
+				continue;
+			}
+			*/
 			if (strcmp(token, "v") == 0)
 			{
 				type = VERTEX;

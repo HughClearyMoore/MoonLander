@@ -78,14 +78,17 @@ void GameStart(Game* game)
 	DynArray obj = MLLoadOBJFile(STI_StringViewCreateFromCString("../data/meshes/triangle.obj"));
 	DynArray obj2 = MLLoadOBJFile(STI_StringViewCreateFromCString("../data/meshes/cube.obj"));
 	DynArray obj3 = MLLoadOBJFile(STI_StringViewCreateFromCString("../data/meshes/teapot.obj"));
+	DynArray obj4 = MLLoadOBJFile(STI_StringViewCreateFromCString("../data/meshes/elephant.obj"));
 
 	Mesh triangle_mesh = MLMeshCreateFromCArray(obj.data, DynArraySize(&obj), sizeof(Vertex));
 	Mesh cube_mesh = MLMeshCreateFromCArray(obj2.data, DynArraySize(&obj2), sizeof(Vertex));
 	Mesh teapot_mesh = MLMeshCreateFromCArray(obj3.data, DynArraySize(&obj3), sizeof(Vertex));
+	Mesh elephant_mesh = MLMeshCreateFromCArray(obj4.data, DynArraySize(&obj4), sizeof(Vertex));
 	
 	DynArrayDestroy(&obj);
 	DynArrayDestroy(&obj2);
 	DynArrayDestroy(&obj3);
+	DynArrayDestroy(&obj4);
 
 
 	game->is_running = STI_TRUE;
@@ -132,8 +135,9 @@ void GameStart(Game* game)
 	MLMeshManagerAddMesh(&game->mesh_manager, triangle_mesh, "triangle_obj");
 	MLMeshManagerAddMesh(&game->mesh_manager, cube_mesh, "cube");
 	MLMeshManagerAddMesh(&game->mesh_manager, teapot_mesh, "teapot");
+	MLMeshManagerAddMesh(&game->mesh_manager, elephant_mesh, "elephant");
 
-	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "teapot");
+	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "elephant");
 
 	Model model = MLModelCreate(entry, program);
 
