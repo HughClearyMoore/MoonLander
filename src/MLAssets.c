@@ -263,6 +263,8 @@ void LoadAssetSHADER(Game* game_ctx, AssetReference* asset_reference)
 
 	fread(src, sizeof(char), file_size, shader_config);
 
+	fclose(shader_config);
+
 	ShaderBuilder sb = MLShaderBuilderCreate();
 
 	char* token = strtok(src, " ");
