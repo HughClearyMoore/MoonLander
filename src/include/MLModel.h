@@ -8,13 +8,13 @@
 typedef struct Model
 {
 	Mesh* mesh;		
-	ShaderProgram shader_program;
+	ShaderProgram* shader_program;
 } Model;
 
-Model MLModelCreate(Mesh* mesh, ShaderProgram shader_program);
+Model MLModelCreate(Mesh* mesh, ShaderProgram* shader_program);
 void MLModelDestroy(Model* model);
 
 void MLModelBind(Model* model);
 void MLModelUnbind(Model* model);
 
-void MLModelDraw(Model* model);
+void MLModelDraw(Model* model, double dt);

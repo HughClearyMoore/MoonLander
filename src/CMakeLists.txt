@@ -10,6 +10,8 @@ set(HEADERS
     "include/MLMeshManager.h"    
     "include/MLFileIO.h"
     "include/MLOBJLoader.h"
+    "include/MLAssets.h"
+    "include/MLShaderProgramManager.h"
 )
 
 set(SOURCES
@@ -20,11 +22,16 @@ set(SOURCES
     "MLMeshManager.c"    
     "MLFileIO.c"
     "MLOBJLoader.c"
+    "MLAssets.c"
+    "MLShaderProgramManager.c"
 )
 
 set(DEFS
     "defs/MLColours.defs"
 )
+
+add_subdirectory(include)
+add_subdirectory(components)
 
 
 target_sources(MoonLander PRIVATE ${HEADERS} ${SOURCES} ${DEFS})

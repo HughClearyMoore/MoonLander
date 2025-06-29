@@ -1,0 +1,6 @@
+"MESH" "triangle" "../data/meshes/triangle.obj"
+"MESH" "teapot" "../data/meshes/teapot.obj"
+"MESH" "cube" "../data/meshes/cube.obj"
+"MESH" "elephant" "../data/meshes/elephant.obj"
+"MESH" "test" "../data/meshes/test.obj"
+"SHADER" "basic" "../data/shaders/basic.txt"

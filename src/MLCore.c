@@ -10,6 +10,8 @@
 #include "MLTypes.h"
 #include "MLModel.h"
 
+#include "MLAssets.h"
+
 #include "MLOBJLoader.h"
 
 #include <stdio.h>
@@ -56,6 +58,9 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 
 
 	game.mesh_manager = MLMeshManagerCreate();
+	game.program_manager = MLShaderProgramManagerCreate();
+
+	MLLoadAssets(&game);
 
 	return game;
 }
@@ -63,6 +68,7 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 void GameDestroy(Game* game)
 {
 
+	MLShaderProgramManagerDestroy(&game->program_manager);
 	MLMeshManagerDestroy(&game->mesh_manager);
 
 	glfwDestroyWindow(game->window);
@@ -74,23 +80,6 @@ void GameDestroy(Game* game)
 
 void GameStart(Game* game)
 {
-	
-	DynArray obj = MLLoadOBJFile(STI_StringViewCreateFromCString("../data/meshes/triangle.obj"));
-	DynArray obj2 = MLLoadOBJFile(STI_StringViewCreateFromCString("../data/meshes/cube.obj"));
-	DynArray obj3 = MLLoadOBJFile(STI_StringViewCreateFromCString("../data/meshes/teapot.obj"));
-	DynArray obj4 = MLLoadOBJFile(STI_StringViewCreateFromCString("../data/meshes/elephant.obj"));
-
-	Mesh triangle_mesh = MLMeshCreateFromCArray(obj.data, DynArraySize(&obj), sizeof(Vertex));
-	Mesh cube_mesh = MLMeshCreateFromCArray(obj2.data, DynArraySize(&obj2), sizeof(Vertex));
-	Mesh teapot_mesh = MLMeshCreateFromCArray(obj3.data, DynArraySize(&obj3), sizeof(Vertex));
-	Mesh elephant_mesh = MLMeshCreateFromCArray(obj4.data, DynArraySize(&obj4), sizeof(Vertex));
-	
-	DynArrayDestroy(&obj);
-	DynArrayDestroy(&obj2);
-	DynArrayDestroy(&obj3);
-	DynArrayDestroy(&obj4);
-
-
 	game->is_running = STI_TRUE;
 
 	glClearColor(
@@ -108,49 +97,25 @@ void GameStart(Game* game)
 
 #endif
 
-
-
-	ShaderBuilder builder = MLShaderBuilderCreate();
-
-	Shader* vert = MLShaderCreate(STI_StringViewCreateFromCString("../data/shaders/basic.vert"), GL_VERTEX_SHADER);
-	Shader* frag = MLShaderCreate(STI_StringViewCreateFromCString("../data/shaders/basic.frag"), GL_FRAGMENT_SHADER);
-	
-	MLShaderBuilderAttach(&builder, vert);
-	MLShaderBuilderAttach(&builder, frag);
-
-	ShaderProgram program = MLShaderBuilderBuild(&builder);
-
-	MLShaderBuilderDestroy(&builder);
-
-	float vertices[] =
-	{
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f
-	};
-
-	Mesh mesh = MLMeshCreateFromCArray(vertices, sizeof(vertices) / sizeof(Vertex), sizeof(Vertex));
-
-	MLMeshManagerAddMesh(&game->mesh_manager, mesh, "triangle");
-	MLMeshManagerAddMesh(&game->mesh_manager, triangle_mesh, "triangle_obj");
-	MLMeshManagerAddMesh(&game->mesh_manager, cube_mesh, "cube");
-	MLMeshManagerAddMesh(&game->mesh_manager, teapot_mesh, "teapot");
-	MLMeshManagerAddMesh(&game->mesh_manager, elephant_mesh, "elephant");
-
 	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "elephant");
+	ShaderProgram* program = MLShaderProgramManagerGetProgram(&game->program_manager, "basic");
 
 	Model model = MLModelCreate(entry, program);
 
+	double time = glfwGetTime();
+
 	while (!glfwWindowShouldClose(game->window) && game->is_running)
 	{
+		double now = glfwGetTime();
+		double delta_time = now - time;
+		time = now;
+
 		glfwPollEvents();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		MLModelDraw(&model);
+		MLModelDraw(&model, delta_time);
 
 		glfwSwapBuffers(game->window);
-	}	
-	
-	MLProgramDestroy(&program);
+	}
 }

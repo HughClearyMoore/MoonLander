@@ -6,7 +6,9 @@
 
 #include <cglm/cglm.h>
 
-Model MLModelCreate(Mesh* mesh, ShaderProgram shader_program)
+static double angle_count = 0.0;
+
+Model MLModelCreate(Mesh* mesh, ShaderProgram* shader_program)
 {
 	Model model = { 0 };
 	model.mesh = mesh;
@@ -24,7 +26,7 @@ void MLModelBind(Model* model)
 {
 	glBindVertexArray(model->mesh->VAO);
 	//glBindBuffer(GL_ARRAY_BUFFER, model->mesh_entry->VBO);
-	glUseProgram(model->shader_program.id);
+	glUseProgram(model->shader_program->id);
 }
 
 void MLModelUnbind(Model* model)
@@ -34,16 +36,19 @@ void MLModelUnbind(Model* model)
 	glBindVertexArray(0);
 }
 
-void MLModelDraw(Model* model)
+void MLModelDraw(Model* model, double dt)
 {
 	MLModelBind(model);
 
-	double angle = glfwGetTime();
+	const double rot_speed = 1.0f;
+	double angle = dt * rot_speed;
+
+	angle_count += angle;
 
 	mat4 mat_model;
 	glm_mat4_identity(mat_model);
-	glm_rotate(mat_model, angle, (vec3) { 1.0f, 1.0f, 1.0f });
-	GLuint modelLoc = glGetUniformLocation(model->shader_program.id, "uModel");
+	glm_rotate(mat_model, angle_count, (vec3) { 1.0f, 1.0f, 1.0f });
+	GLuint modelLoc = glGetUniformLocation(model->shader_program->id, "uModel");
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (const GLfloat*)mat_model);
 
