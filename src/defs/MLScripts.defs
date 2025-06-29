@@ -1,0 +1,3 @@
+SCRIPT(PlayerScript)
+SCRIPT_HAS_UPDATE(PlayerScript)
+SCRIPT_END

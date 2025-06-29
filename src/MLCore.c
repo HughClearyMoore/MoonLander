@@ -14,6 +14,8 @@
 
 #include "MLOBJLoader.h"
 
+#include "MLScript.h"
+
 #include <stdio.h>
 
 #define DRAW_DEBUG 0
@@ -96,6 +98,13 @@ void GameStart(Game* game)
 	glLineWidth(3.0);
 
 #endif
+
+	Script scr = ScriptLinkPlayerScript();
+
+	scr.create(game, &scr.ctx);
+	scr.ready(game, scr.ctx);
+	scr.update(game, scr.ctx, 5.0);
+	scr.destroy(game, scr.ctx);
 
 	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "elephant");
 	ShaderProgram* program = MLShaderProgramManagerGetProgram(&game->program_manager, "basic");
