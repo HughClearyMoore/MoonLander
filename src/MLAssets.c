@@ -234,6 +234,10 @@ void LoadAssetMESH(Game* game_ctx, AssetReference* asset_reference)
 	{
 		MLMeshManagerAddMesh(&game_ctx->mesh_manager, mesh, asset_reference->asset_name.data);
 	}
+	else
+	{
+		MLMeshDestroy(&mesh);
+	}
 }
 
 void LoadAssetTEXTURE(Game* game_ctx, AssetReference* asset_reference)
