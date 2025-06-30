@@ -1,17 +1,28 @@
 #include "MLMeshManager.h"
 
+#include <assert.h>
+#include <stdlib.h>
+
 #define HASH_MAP_BUCKET_SIZE 128
+
+static void MeshDeleter(void** ptr)
+{
+	Mesh* mesh = *(Mesh**)ptr;
+
+	MLMeshDestroy(mesh);
+	free(mesh);
+}
 
 MeshManager MLMeshManagerCreate()
 {
 	MeshManager manager = { 0 };
 	manager.meshes = HashMapCreate(
 		HASHMAP_KEY_STRING,
-		sizeof(Mesh),
+		sizeof(Mesh*),
 		HASH_MAP_BUCKET_SIZE,
 		&HashMapFNV1AHash,
 		&HashMapStringCmp,
-		&MLMeshDestroy
+		&MeshDeleter
 	);
 
 	return manager;
@@ -39,10 +50,15 @@ void MLMeshManagerAddMesh(MeshManager* manager, Mesh mesh, const char* name)
 	
 	glBindVertexArray(0);
 
-	HashMapInsert(&manager->meshes, name, &mesh);
+	Mesh* mesh_ptr = calloc(1, sizeof(Mesh));
+	assert(mesh_ptr);
+	*mesh_ptr = mesh;
+
+
+	HashMapInsert(&manager->meshes, name, &mesh_ptr);
 }
 
 Mesh* MLMeshManagerGetMesh(MeshManager* manager, const char* name)
 {
-	return HashMapGet(&manager->meshes, name);
+	return *(Mesh**)HashMapGet(&manager->meshes, name);
 }

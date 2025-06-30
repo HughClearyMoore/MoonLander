@@ -159,4 +159,5 @@ void MLProgramDestroy(ShaderProgram* program)
 {
 	assert(program && "Tried to delete null program");
 	glDeleteProgram(program->id);
+	*program = (ShaderProgram){ 0 };
 }
