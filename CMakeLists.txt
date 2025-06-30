@@ -11,6 +11,14 @@ include(FetchContent)
 set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/downloads")
 set(FETCHCONTENT_QUIET OFF)
 
+set(GLFW_INSTALL OFF)
+
+set(ODE_WITH_TESTS OFF)
+set(ODE_WITH_DEMOS OFF)
+set(STI_BUILD_TESTS OFF)
+
+
+
 FetchContent_Declare(
     STI
     GIT_REPOSITORY https://github.com/HughClearyMoore/STI.git
@@ -35,7 +43,13 @@ FetchContent_Declare(
     GIT_TAG 144d1e7c29b3b0c6dede7917a0476cc95248559c
 )
 
-FetchContent_MakeAvailable(STI glfw glad cglm)
+FetchContent_Declare(
+    ode
+    GIT_REPOSITORY https://bitbucket.org/odedevs/ode.git
+    GIT_TAG "master"
+)
+
+FetchContent_MakeAvailable(STI glfw glad cglm ode)
 
 find_package(OpenGL REQUIRED)
 
@@ -43,7 +57,7 @@ add_executable(MoonLander "${CMAKE_SOURCE_DIR}/src/MoonLander.c")
 
 add_subdirectory(src)
 
-target_link_libraries(MoonLander PRIVATE STI glfw glad cglm OpenGL::GL)
+target_link_libraries(MoonLander PRIVATE STI glfw glad cglm OpenGL::GL ODE)
 
 
 

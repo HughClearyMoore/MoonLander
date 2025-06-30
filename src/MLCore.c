@@ -16,6 +16,8 @@
 
 #include <stdio.h>
 
+#include <ode/ode.h>
+
 #define DRAW_DEBUG 0
 
 static void WindowResizeCallback(GLFWwindow* window, int width, int height)
@@ -98,6 +100,27 @@ void GameStart(Game* game)
 	glLineWidth(3.0);
 
 #endif
+
+	// ODE test
+
+	dInitODE2(0);
+
+	dWorldID world = dWorldCreate();
+
+	dBodyID body = dBodyCreate(world);
+	dBodySetPosition(body, 0.0, 1.0, 0.0);
+
+	const dReal* pos = dBodyGetPosition(body);
+	printf("Body position: x=%.2f, y=%.2f, z=%.2f\n", pos[0], pos[1], pos[2]);
+
+	dBodyDestroy(body);
+	dWorldDestroy(world);
+	dCloseODE();
+
+
+
+
+	//
 
 	Script* scr = MLScriptManagetGet(&game->script_manager, SCRIPT_ENUM_PlayerScript);
 
