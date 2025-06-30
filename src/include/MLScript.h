@@ -1,11 +1,12 @@
 #pragma once
 
 typedef struct Game Game;
+typedef void* ScriptContext;
 
-typedef void(*OnUpdate_t)(Game* game_ctx, void* ctx, double dt);
-typedef void(*OnReady_t)(Game* game_ctx, void* ctx);
-typedef void(*OnCreate_t)(Game* game_ctx, void** ctx_ptr);
-typedef void(*OnDestroy_t)(Game* game_ctx, void* ctx);
+typedef void(*OnUpdate_t)(Game* game_ctx, ScriptContext ctx, double dt);
+typedef void(*OnReady_t)(Game* game_ctx, ScriptContext ctx);
+typedef void(*OnCreate_t)(Game* game_ctx, ScriptContext* ctx_ptr);
+typedef void(*OnDestroy_t)(Game* game_ctx, ScriptContext ctx);
 
 typedef struct Script
 {
@@ -19,15 +20,15 @@ typedef struct Script
 #define SCRIPT_END
 
 #define SCRIPT_START(name) \
-	void ScriptCreate##name(Game* game_ctx, void** ctx_ptr); \
-	void OnReady##name(Game* game_ctx, void* ctx); \
-	void OnDestroy##name(Game* game_ctx, void* ctx);
+	void ScriptCreate##name(Game* game_ctx, ScriptContext* ctx_ptr); \
+	void OnReady##name(Game* game_ctx, ScriptContext ctx); \
+	void OnDestroy##name(Game* game_ctx, ScriptContext ctx);
 
 #define SCRIPT(name) \
 	SCRIPT_START(name)
 
 #define SCRIPT_HAS_UPDATE(name) \
-	void OnUpdate##name(Game* game_ctx, void* ctx, double dt);
+	void OnUpdate##name(Game* game_ctx, ScriptContext ctx, double dt);
 
 	
 #include "../defs/MLScripts.defs"
@@ -45,7 +46,7 @@ typedef struct Script
 
 #undef SCRIPT
 
-#define CREATE_FUNCTION(name) void ScriptCreate##name(Game* game_ctx, void** ctx_ptr)
-#define READY_FUNCTION(name) void OnReady##name(Game* game_ctx, void* ctx)
-#define DESTROY_FUNCTION(name) void OnDestroy##name(Game* game_ctx, void* ctx)
-#define UPDATE_FUNCTION(name) void OnUpdate##name(Game* game_ctx, void* ctx, double dt)
+#define CREATE_FUNCTION(name) void ScriptCreate##name(Game* game_ctx, ScriptContext* ctx_ptr)
+#define READY_FUNCTION(name) void OnReady##name(Game* game_ctx, ScriptContext ctx)
+#define DESTROY_FUNCTION(name) void OnDestroy##name(Game* game_ctx, ScriptContext ctx)
+#define UPDATE_FUNCTION(name) void OnUpdate##name(Game* game_ctx, ScriptContext ctx, double dt)

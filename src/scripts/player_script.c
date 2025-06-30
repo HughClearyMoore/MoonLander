@@ -31,8 +31,6 @@ DESTROY_FUNCTION(PlayerScript)
 
 	free(player_ctx);
 
-	*player_ctx = (PlayerContext){ 0 };
-
 	return;
 }
 

@@ -21,7 +21,7 @@ static void ScriptDeleter(void** ptr)
 {
 	Script* script = *(Script**)ptr;
 
-	free(script);
+	free(script);	
 }
 
 ScriptManager MLScriptManagerCreate()
@@ -57,4 +57,3 @@ Script* MLScriptManagetGet(ScriptManager* manager, Script_t script_type)
 {
 	return *(Script**)DynArrayGet(&manager->scripts, script_type);
 }
-

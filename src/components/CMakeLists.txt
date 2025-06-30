@@ -1,3 +1,4 @@
 target_sources(MoonLander PRIVATE
-    "Transform.c"
+    "TransformComponent.c"
+    "ScriptComponent.c"
 )
