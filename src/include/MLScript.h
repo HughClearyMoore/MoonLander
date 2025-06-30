@@ -1,7 +1,6 @@
 #pragma once
 
-#include "MLCore.h"
-// what is a script?
+typedef struct Game Game;
 
 typedef void(*OnUpdate_t)(Game* game_ctx, void* ctx, double dt);
 typedef void(*OnReady_t)(Game* game_ctx, void* ctx);
@@ -34,24 +33,17 @@ typedef struct Script
 #include "../defs/MLScripts.defs"
 
 #undef SCRIPT
-#undef SCRIPT_END
 #undef SCRIPT_START
 
 #undef SCRIPT_HAS_UPDATE
+#define SCRIPT_HAS_UPDATE(name)
 
 #define SCRIPT(name) \
 	Script ScriptLink##name();
 
-#define SCRIPT_END
-#define SCRIPT_HAS_UPDATE(name)
-
 #include "../defs/MLScripts.defs"
 
 #undef SCRIPT
-#undef SCRIPT_END
-
-#undef SCRIPT_HAS_UPDATE
-
 
 #define CREATE_FUNCTION(name) void ScriptCreate##name(Game* game_ctx, void** ctx_ptr)
 #define READY_FUNCTION(name) void OnReady##name(Game* game_ctx, void* ctx)

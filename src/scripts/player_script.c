@@ -4,6 +4,8 @@
 
 #include <stdlib.h>
 
+#include "MLCore.h"
+
 typedef struct PlayerContext
 {
 	int health;
@@ -28,6 +30,8 @@ DESTROY_FUNCTION(PlayerScript)
 	printf("pointer is %zu\n", (size_t)player_ctx);
 
 	free(player_ctx);
+
+	*player_ctx = (PlayerContext){ 0 };
 
 	return;
 }

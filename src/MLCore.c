@@ -12,8 +12,6 @@
 
 #include "MLAssets.h"
 
-#include "MLOBJLoader.h"
-
 #include "MLScript.h"
 
 #include <stdio.h>
@@ -61,6 +59,7 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 
 	game.mesh_manager = MLMeshManagerCreate();
 	game.program_manager = MLShaderProgramManagerCreate();
+	game.script_manager = MLScriptManagerCreate();
 
 	MLLoadAssets(&game);
 
@@ -70,6 +69,7 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 void GameDestroy(Game* game)
 {
 
+	MLScriptManagerDestroy(&game->script_manager);
 	MLShaderProgramManagerDestroy(&game->program_manager);
 	MLMeshManagerDestroy(&game->mesh_manager);
 
@@ -99,12 +99,12 @@ void GameStart(Game* game)
 
 #endif
 
-	Script scr = ScriptLinkPlayerScript();
+	Script* scr = MLScriptManagetGet(&game->script_manager, SCRIPT_ENUM_PlayerScript);
 
-	scr.create(game, &scr.ctx);
-	scr.ready(game, scr.ctx);
-	scr.update(game, scr.ctx, 5.0);
-	scr.destroy(game, scr.ctx);
+	scr->create(game, &scr->ctx);
+	scr->ready(game, scr->ctx);
+	scr->update(game, scr->ctx, 5.0);
+	scr->destroy(game, scr->ctx);
 
 	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "elephant");
 	ShaderProgram* program = MLShaderProgramManagerGetProgram(&game->program_manager, "basic");

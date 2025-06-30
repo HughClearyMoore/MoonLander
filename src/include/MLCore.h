@@ -10,6 +10,7 @@
 
 #include "MLMeshManager.h"
 #include "MLShaderProgramManager.h"
+#include "MLScriptManager.h"
 
 typedef struct Game
 {
@@ -20,6 +21,7 @@ typedef struct Game
 	STI_BOOL is_running;
 	MeshManager mesh_manager;
 	ShaderProgramManager program_manager;
+	ScriptManager script_manager;
 } Game;
 
 Game GameCreate(const size_t width, const size_t height, const char* title);

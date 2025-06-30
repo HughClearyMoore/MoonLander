@@ -13,6 +13,7 @@ set(HEADERS
     "include/MLAssets.h"
     "include/MLShaderProgramManager.h"
     "include/MLScript.h"
+    "include/MLScriptManager.h"
 )
 
 set(SOURCES
@@ -26,6 +27,7 @@ set(SOURCES
     "MLAssets.c"
     "MLShaderProgramManager.c"
     "MLScript.c"
+    "MLScriptManager.c"
 )
 
 set(DEFS
