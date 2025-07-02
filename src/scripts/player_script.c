@@ -48,15 +48,33 @@ READY_FUNCTION(PlayerScript)
 
 UPDATE_FUNCTION(PlayerScript)
 {
-	PlayerContext* player_ctx = (PlayerContext*)ctx;
+	PlayerContext* player_ctx = (PlayerContext*)ctx;	
+	Input* input = GET_INPUT;
 
-	printf("Ah I've been hit\n");
-	
-	--player_ctx->health;
+	if (input->keys[GLFW_KEY_A].just_pressed)
+	{
+		printf("A pressed!\n");
+	}
 
-	printf("Health now at %d\n", player_ctx->health);
-	
+	if (input->keys[GLFW_KEY_A].is_pressed)
+	{
+		printf("A down!\n");
+	}
 
-	printf("Calling player update script! %f\n", dt);
+	if (input->keys[GLFW_KEY_A].just_released)
+	{
+		printf("A released!\n");
+	}
+
+	if (input->any_key.just_pressed)
+	{
+		printf("The any key was pressed!\n");
+	}
+
+	if (input->any_key.just_released)
+	{
+		printf("The any key was released!\n");
+	}
+
 	return;
 }

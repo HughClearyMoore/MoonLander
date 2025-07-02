@@ -10,7 +10,6 @@
 #include "MLTypes.h"
 #include "MLModel.h"
 #include "MLAssets.h"
-#include "MLInput.h"
 #include "MLScript.h"
 
 #include <stdio.h>
@@ -137,8 +136,6 @@ void GameStart(Game* game)
 
 	scr->create(game, &scr->ctx);
 	scr->ready(game, scr->ctx);
-	scr->update(game, scr->ctx, 5.0);
-	scr->destroy(game, scr->ctx);
 
 	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "elephant");
 	ShaderProgram* program = MLShaderProgramManagerGetProgram(&game->program_manager, "basic");
@@ -155,10 +152,18 @@ void GameStart(Game* game)
 
 		glfwPollEvents();
 
+		scr->update(game, scr->ctx, delta_time);
+
+		MLInputResetMarked(&game->input);
+
+
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		MLModelDraw(&model, delta_time);
 
 		glfwSwapBuffers(game->window);
 	}
+
+	scr->destroy(game, scr->ctx);
 }

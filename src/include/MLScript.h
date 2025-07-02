@@ -50,3 +50,4 @@ typedef struct Script
 #define READY_FUNCTION(name) void OnReady##name(Game* game_ctx, ScriptContext ctx)
 #define DESTROY_FUNCTION(name) void OnDestroy##name(Game* game_ctx, ScriptContext ctx)
 #define UPDATE_FUNCTION(name) void OnUpdate##name(Game* game_ctx, ScriptContext ctx, double dt)
+#define GET_INPUT &game_ctx->input;
