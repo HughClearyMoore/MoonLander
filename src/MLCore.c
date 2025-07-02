@@ -9,9 +9,8 @@
 #include "MLMesh.h"
 #include "MLTypes.h"
 #include "MLModel.h"
-
 #include "MLAssets.h"
-
+#include "MLInput.h"
 #include "MLScript.h"
 
 #include <stdio.h>
@@ -58,7 +57,13 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 
 	glViewport(0, 0, width, height);
 
+	glfwSetWindowUserPointer(game.window, &game);
+
 	glfwSetFramebufferSizeCallback(game.window, &WindowResizeCallback);
+	glfwSetKeyCallback(game.window, (GLFWkeyfun)&MLInputKeyCallback);
+
+	
+
 
 
 	game.mesh_manager = MLMeshManagerCreate();
