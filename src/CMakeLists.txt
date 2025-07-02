@@ -14,6 +14,9 @@ set(HEADERS
     "include/MLShaderProgramManager.h"
     "include/MLScript.h"
     "include/MLScriptManager.h"
+    "include/MLComponentManager.h"
+    "include/MLComponent.h"
+    "include/MLInput.h"
 )
 
 set(SOURCES
@@ -28,12 +31,16 @@ set(SOURCES
     "MLShaderProgramManager.c"
     "MLScript.c"
     "MLScriptManager.c"
+    "MLComponentManager.c"
+    "MLComponent.c"
+    "MLInput.c"
 )
 
 set(DEFS
     "defs/MLColours.defs"
     "defs/MLAssetTypes.defs"
     "defs/MLScripts.defs"
+    "defs/MLComponents.defs"
 )
 
 add_subdirectory(include)

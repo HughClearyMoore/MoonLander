@@ -18,6 +18,8 @@
 
 #include <ode/ode.h>
 
+#include "MLComponent.h"
+
 #define DRAW_DEBUG 0
 
 static void WindowResizeCallback(GLFWwindow* window, int width, int height)
@@ -121,6 +123,10 @@ void GameStart(Game* game)
 
 
 	//
+
+	Transform t = { .x = 0.5f, .y = 0.5f, .z = 0.1f, .scale = 1.0f };
+
+	MLComponentDestroyTransform(&t);
 
 	Script* scr = MLScriptManagetGet(&game->script_manager, SCRIPT_ENUM_PlayerScript);
 
