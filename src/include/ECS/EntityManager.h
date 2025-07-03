@@ -17,7 +17,7 @@ typedef struct EntityManager
 } EntityManager;
 
 
-EntityManager MLEntityManagerCreate();
+EntityManager* MLEntityManagerCreate();
 
 Entity_t MLEntityManagerNewEntity(EntityManager* manager);
 void MLEntityManagerDestroyEntity(EntityManager* manager, Entity_t entity);

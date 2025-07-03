@@ -1,10 +1,14 @@
 #include "ECS/ComponentManager.h"
 
-ComponentManager MLComponentManagerCreate()
-{
-#define COMPONENT(type) manager.Components.array[ENUM_COMPONENT_##type] = MLComponentArrayCreate(sizeof(type), &MLComponentDestroy##type);
+#include <assert.h>
+#include <stdlib.h>
 
-	ComponentManager manager = { 0 };
+ComponentManager* MLComponentManagerCreate()
+{
+	ComponentManager* manager = calloc(1, sizeof(ComponentManager));
+	assert(manager);
+
+#define COMPONENT(type) manager->Components.array[ENUM_COMPONENT_##type] = MLComponentArrayCreate(sizeof(type), &MLComponentDestroy##type);	
 
 #include "../defs/MLComponents.defs"
 

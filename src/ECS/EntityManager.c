@@ -1,12 +1,14 @@
 #include "ECS/EntityManager.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
-EntityManager MLEntityManagerCreate()
+EntityManager* MLEntityManagerCreate()
 {
-	EntityManager manager = { 0 };
+	EntityManager* manager = calloc(1, sizeof(EntityManager));
+	assert(manager);	
 
-	manager.free_entities = DynArrayCreate(sizeof(Entity_t), 0, NULL);
+	manager->free_entities = DynArrayCreate(sizeof(Entity_t), 0, NULL);
 
 	return manager;
 }

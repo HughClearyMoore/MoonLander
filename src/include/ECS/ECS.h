@@ -3,13 +3,15 @@
 #include "ECSConfig.h"
 #include "EntityManager.h"
 #include "ComponentManager.h"
+#include "SystemManager.h"
 
 typedef struct ECS
 {
 	struct Managers
 	{
-		EntityManager entity_manager;
-		ComponentManager component_manager;
+		EntityManager* entity_manager;
+		ComponentManager* component_manager;
+		SystemManager* system_manager;
 	} managers;
 } ECS;
 
@@ -21,6 +23,8 @@ void MLECSDestroyEntity(ECS* ecs, Entity_t entity);
 
 void MLECSSetEntitySignature(ECS* ecs, Entity_t entity, Signature_t signature);
 Signature_t MLECSGetEntitySignature(ECS* ecs, Entity_t entity);
+
+MLSystem* MLECSNewSystem(ECS* ecs, Signature_t signature);
 
 #define COMPONENT(type) type* MLECSGetComponent##type(ECS* ecs, Entity_t entity);
 

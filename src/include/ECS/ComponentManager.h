@@ -11,5 +11,5 @@ typedef struct ComponentManager
 
 } ComponentManager;
 
-ComponentManager MLComponentManagerCreate();
+ComponentManager* MLComponentManagerCreate();
 void MLComponentManagerDestroy(ComponentManager* manager);
