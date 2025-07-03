@@ -34,5 +34,4 @@ void MLComponentArrayAttachComponent(ComponentArray* array, Entity_t entity, voi
 void MLComponentArrayRemoveComponent(ComponentArray* array, Entity_t entity);
 
 void* MLComponentArrayGetComponent(ComponentArray* array, Entity_t entity);
-
 void MLComponentArrayEntityDestroyed(ComponentArray* array, Entity_t entity);

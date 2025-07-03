@@ -2,6 +2,7 @@
 
 #include "ECSConfig.h"
 #include "EntityManager.h"
+#include "ComponentManager.h"
 
 typedef struct ECS
 {

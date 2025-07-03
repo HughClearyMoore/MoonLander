@@ -4,14 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 ComponentArray MLComponentArrayCreate(size_t component_size_in_bytes, ComponentDestroy_t component_destroy)
 {
 	ComponentArray arr = { 0 };
-
-	// linkage needs to occur somehow or another.
-
-	// can do it here or somewhere else.
 
 	arr.data.components = DynArrayCreate(component_size_in_bytes, MAX_ENTITIES, NULL);
 	arr.component_destroy = component_destroy;
@@ -27,10 +22,6 @@ ComponentArray MLComponentArrayCreate(size_t component_size_in_bytes, ComponentD
 
 void MLComponentArrayDestroy(ComponentArray* array)
 {
-	
-	// manual for each
-
-	// pita
 	const size_t sz = array->data.size;
 	const ComponentDestroy_t component_destroy = array->component_destroy;
 
