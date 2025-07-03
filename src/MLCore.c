@@ -126,13 +126,12 @@ void GameStart(Game* game)
 
 	Transform t = { .x = 0.5f, .y = 0.5f, .z = 0.1f, .scale = 1.0f };
 
-	MLComponentDestroyTransform(&t);	
+	Entity_t entity = MLECSNewEntity(&game->ecs);
+	
+	MLECSAttachComponentTransform(&game->ecs, entity, &t);
 
-
-	Entity_t new_entity = MLEntityManagerNewEntity(&game->ecs.managers.entity_manager);
-	MLEntityManagerDestroyEntity(&game->ecs.managers.entity_manager, new_entity);
-
-	new_entity = MLEntityManagerNewEntity(&game->ecs.managers.entity_manager);
+	
+	Transform* t_ptr = MLECSGetComponentTransform(&game->ecs, entity);
 	
 
 	Script* scr = MLScriptManagetGet(&game->script_manager, SCRIPT_ENUM_PlayerScript);

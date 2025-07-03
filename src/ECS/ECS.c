@@ -5,6 +5,7 @@ ECS MLECSCreate()
 	ECS ecs = { 0 };
 
 	ecs.managers.entity_manager = MLEntityManagerCreate();
+	ecs.managers.component_manager = MLComponentManagerCreate();
 
 	return ecs;
 }
@@ -12,6 +13,7 @@ ECS MLECSCreate()
 void MLECSDestroy(ECS* ecs)
 {
 	MLEntityManagerDestroy(&ecs->managers.entity_manager);
+	MLComponentManagerDestroy(&ecs->managers.component_manager);	
 
 	*ecs = (ECS){ 0 };
 }
@@ -34,3 +36,32 @@ Signature_t MLECSGetEntitySignature(ECS* ecs, Entity_t entity)
 {
 	return MLEntityManagerGetSignature(&ecs->managers.entity_manager, entity);
 }
+
+// I NEED TO DO SIGNATURES IN THESE FUNCTIONS (IT WONT WORK IF YOU DON'T HUGH)
+
+#define COMPONENT(type) type* MLECSGetComponent##type(ECS* ecs, Entity_t entity) \
+{ \
+	ComponentArray* array = &ecs->managers.component_manager.Components.array[ENUM_COMPONENT_##type]; \
+	return (type*)MLComponentArrayGetComponent(array, entity); \
+} 
+#include "../defs/MLComponents.defs"
+
+#undef COMPONENT
+
+#define COMPONENT(type) void MLECSAttachComponent##type(ECS* ecs, Entity_t entity, type* component) \
+{ \
+	ComponentArray* array = &ecs->managers.component_manager.Components.array[ENUM_COMPONENT_##type]; \
+	MLComponentArrayAttachComponent(array, entity, component); \
+} 
+#include "../defs/MLComponents.defs"
+
+#undef COMPONENT
+
+#define COMPONENT(type) void MLECSRemoveComponent##type(ECS* ecs, Entity_t entity) \
+{ \
+	ComponentArray* array = &ecs->managers.component_manager.Components.array[ENUM_COMPONENT_##type]; \
+	MLComponentArrayRemoveComponent(array, entity); \
+} 
+#include "../defs/MLComponents.defs"
+
+#undef COMPONENT
