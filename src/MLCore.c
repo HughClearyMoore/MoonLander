@@ -18,6 +18,8 @@
 
 #include "ECS/Component.h"
 
+#include "ECS/System.h"
+
 #define DRAW_DEBUG 0
 
 static void WindowResizeCallback(GLFWwindow* window, int width, int height)
@@ -127,12 +129,28 @@ void GameStart(Game* game)
 	Transform t = { .x = 0.5f, .y = 0.5f, .z = 0.1f, .scale = 1.0f };
 
 	Entity_t entity = MLECSNewEntity(&game->ecs);
-	
+	Entity_t entity_2 = MLECSNewEntity(&game->ecs);
+
 	MLECSAttachComponentTransform(&game->ecs, entity, &t);
+
+	t.x = 50.0;
+
+	MLECSAttachComponentTransform(&game->ecs, entity_2, &t);
 
 	
 	Transform* t_ptr = MLECSGetComponentTransform(&game->ecs, entity);
 	
+
+	MLSystem sys = MLSystemCreate(1 << ENUM_COMPONENT_Transform);
+
+	MLSystemTrackEntity(&sys, entity);
+	MLSystemTrackEntity(&sys, entity_2);
+	
+
+	MLSystemUntrackEntity(&sys, entity);
+
+	MLSystemDestroy(&sys);
+
 
 	Script* scr = MLScriptManagetGet(&game->script_manager, SCRIPT_ENUM_PlayerScript);
 

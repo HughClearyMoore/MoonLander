@@ -43,7 +43,7 @@ Signature_t MLECSGetEntitySignature(ECS* ecs, Entity_t entity)
 { \
 	ComponentArray* array = &ecs->managers.component_manager.Components.array[ENUM_COMPONENT_##type]; \
 	return (type*)MLComponentArrayGetComponent(array, entity); \
-} 
+}
 #include "../defs/MLComponents.defs"
 
 #undef COMPONENT
@@ -56,6 +56,23 @@ Signature_t MLECSGetEntitySignature(ECS* ecs, Entity_t entity)
 #include "../defs/MLComponents.defs"
 
 #undef COMPONENT
+
+
+void MLECSAttachComponent(ECS* ecs, Entity_t entity, void* component)
+{
+	ComponentArray* array = &ecs->managers.component_manager.Components.array[ENUM_COMPONENT_Transform];	
+	MLComponentArrayAttachComponent(array, entity, component);
+
+	Signature_t signature = MLECSGetEntitySignature(ecs, entity);
+	signature |= 1 << ENUM_COMPONENT_Transform;
+	MLECSSetEntitySignature(ecs, entity, signature);
+
+	
+	// notify system of changed signature
+	// but this is the gist
+} 
+
+
 
 #define COMPONENT(type) void MLECSRemoveComponent##type(ECS* ecs, Entity_t entity) \
 { \

@@ -21,6 +21,7 @@ set(HEADERS
     "include/ECS/EntityManager.h"
     "include/ECS/ECSConfig.h"
     "include/ECS/ComponentArray.h"
+    "include/ECS/System.h"
 )
 
 set(SOURCES
@@ -41,6 +42,7 @@ set(SOURCES
     "ECS/ECS.c"
     "ECS/EntityManager.c"
     "ECS/ComponentArray.c"
+    "ECS/System.c"
 )
 
 set(DEFS

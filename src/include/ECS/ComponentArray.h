@@ -18,7 +18,7 @@ typedef struct ComponentArray
 		size_t size;
 	} data;
 
-	struct Mapping
+	struct
 	{
 		size_t entity_to_index[MAX_ENTITIES];
 		Entity_t index_to_entity[MAX_ENTITIES];
