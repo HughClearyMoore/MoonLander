@@ -14,9 +14,13 @@ set(HEADERS
     "include/MLShaderProgramManager.h"
     "include/MLScript.h"
     "include/MLScriptManager.h"
-    "include/MLComponentManager.h"
-    "include/MLComponent.h"
+    "include/ECS/ComponentManager.h"
+    "include/ECS/Component.h"
     "include/MLInput.h"
+    "include/ECS/ECS.h"
+    "include/ECS/EntityManager.h"
+    "include/ECS/ECSConfig.h"
+    "include/ECS/ComponentArray.h"
 )
 
 set(SOURCES
@@ -31,9 +35,12 @@ set(SOURCES
     "MLShaderProgramManager.c"
     "MLScript.c"
     "MLScriptManager.c"
-    "MLComponentManager.c"
-    "MLComponent.c"
+    "ECS/ComponentManager.c"
+    "ECS/Component.c"
     "MLInput.c"
+    "ECS/ECS.c"
+    "ECS/EntityManager.c"
+    "ECS/ComponentArray.c"
 )
 
 set(DEFS

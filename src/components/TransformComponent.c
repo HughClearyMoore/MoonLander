@@ -1,11 +1,13 @@
-#include "MLComponent.h"
+#include "ECS/Component.h"
 
 #include <stdio.h>
 
 COMPONENT_DESTROY(Transform)
 {
-	printf("%f, %f, %f\n", component->x, component->y, component->z);
+	Transform* transform = (Transform*)component;
 
-	*component = (Transform){ 0 };
+	printf("%f, %f, %f\n", transform->x, transform->y, transform->z);
+
+	*transform = (Transform){ 0 };
 }
 

@@ -12,6 +12,7 @@
 #include "MLShaderProgramManager.h"
 #include "MLScriptManager.h"
 #include "MLInput.h"
+#include "ECS/ECS.h"
 
 typedef struct Game
 {
@@ -24,6 +25,7 @@ typedef struct Game
 	ShaderProgramManager program_manager;
 	ScriptManager script_manager;
 	Input input;
+	ECS ecs;
 } Game;
 
 Game GameCreate(const size_t width, const size_t height, const char* title);

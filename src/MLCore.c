@@ -16,7 +16,7 @@
 
 #include <ode/ode.h>
 
-#include "MLComponent.h"
+#include "ECS/Component.h"
 
 #define DRAW_DEBUG 0
 
@@ -54,9 +54,7 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 	}
 
 
-	glViewport(0, 0, width, height);
-
-	glfwSetWindowUserPointer(game.window, &game);
+	glViewport(0, 0, width, height);	
 
 	glfwSetFramebufferSizeCallback(game.window, &WindowResizeCallback);
 	glfwSetKeyCallback(game.window, (GLFWkeyfun)&MLInputKeyCallback);
@@ -68,6 +66,7 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 	game.mesh_manager = MLMeshManagerCreate();
 	game.program_manager = MLShaderProgramManagerCreate();
 	game.script_manager = MLScriptManagerCreate();
+	game.ecs = MLECSCreate();
 
 	MLLoadAssets(&game);
 
@@ -76,7 +75,7 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 
 void GameDestroy(Game* game)
 {
-
+	MLECSDestroy(&game->ecs);
 	MLScriptManagerDestroy(&game->script_manager);
 	MLShaderProgramManagerDestroy(&game->program_manager);
 	MLMeshManagerDestroy(&game->mesh_manager);
@@ -123,14 +122,18 @@ void GameStart(Game* game)
 	dWorldDestroy(world);
 	dCloseODE();
 
-
-
-
 	//
 
 	Transform t = { .x = 0.5f, .y = 0.5f, .z = 0.1f, .scale = 1.0f };
 
-	MLComponentDestroyTransform(&t);
+	MLComponentDestroyTransform(&t);	
+
+
+	Entity_t new_entity = MLEntityManagerNewEntity(&game->ecs.managers.entity_manager);
+	MLEntityManagerDestroyEntity(&game->ecs.managers.entity_manager, new_entity);
+
+	new_entity = MLEntityManagerNewEntity(&game->ecs.managers.entity_manager);
+	
 
 	Script* scr = MLScriptManagetGet(&game->script_manager, SCRIPT_ENUM_PlayerScript);
 
