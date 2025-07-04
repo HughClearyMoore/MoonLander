@@ -22,7 +22,7 @@ ComponentArray MLComponentArrayCreate(size_t component_size_in_bytes, ComponentD
 
 void MLComponentArrayDestroy(ComponentArray* array)
 {
-	const size_t sz = array->data.size;
+	const size_t sz = DynArraySize(&array->data.components);
 	const ComponentDestroy_t component_destroy = array->component_destroy;
 
 	for (size_t i = 0; i < sz; ++i)
@@ -38,7 +38,7 @@ void MLComponentArrayDestroy(ComponentArray* array)
 
 void MLComponentArrayAttachComponent(ComponentArray* array, Entity_t entity, void* component)
 {
-	const size_t idx = array->data.size++;
+	const size_t idx = DynArraySize(&array->data.components);
 
 	array->mapping.entity_to_index[entity] = idx;
 	array->mapping.index_to_entity[idx] = entity;

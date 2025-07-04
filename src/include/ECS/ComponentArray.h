@@ -15,7 +15,6 @@ typedef struct ComponentArray
 	{
 		// DynArray<Component>
 		DynArray components;
-		size_t size;
 	} data;
 
 	struct

@@ -142,8 +142,7 @@ void GameStart(Game* game)
 	
 	Transform* t_ptr = MLECSGetComponentTransform(&game->ecs, entity);
 
-
-	// surely fucking not?
+	MLECSRemoveComponentTransform(&game->ecs, entity);
 
 	PhysicsSystemUpdate(&physics, 1.0);
 

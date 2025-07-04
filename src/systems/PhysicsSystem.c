@@ -29,7 +29,11 @@ void PhysicsSystemUpdate(PhysicsSystem* physics_system, double dt)
 		Entity_t e = entities[i];
 
 		Transform* transform = MLECSGetComponentTransform(ecs, e);
-		assert(transform);
+		if (transform == NULL)
+		{
+			printf("null transform\n");
+			continue;
+		}
 		
 
 		printf("Position: x = '{%f}', y = '{%f}', z = '{%f}'\n",
