@@ -27,3 +27,13 @@ void MLComponentManagerDestroy(ComponentManager* manager)
 
 	*manager = (ComponentManager){ 0 };
 }
+
+void MLComponentManagerEntityDestroyed(ComponentManager* manager, Entity_t entity)
+{
+	const sz = sizeof(manager->Components.array) / sizeof(ComponentArray);
+
+	for (size_t i = 0; i < sz; ++i)
+	{
+		MLComponentArrayEntityDestroyed(&manager->Components.array[i], entity);
+	}
+}

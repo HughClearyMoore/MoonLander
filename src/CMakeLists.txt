@@ -23,6 +23,7 @@ set(HEADERS
     "include/ECS/ComponentArray.h"
     "include/ECS/System.h"
     "include/ECS/SystemManager.h"
+    "include/systems/PhysicsSystem.h"
 )
 
 set(SOURCES
@@ -45,6 +46,7 @@ set(SOURCES
     "ECS/ComponentArray.c"
     "ECS/System.c"
     "ECS/SystemManager.c"
+    "systems/PhysicsSystem.c"
 )
 
 set(DEFS

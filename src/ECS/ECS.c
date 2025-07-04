@@ -15,7 +15,7 @@ void MLECSDestroy(ECS* ecs)
 {
 	MLEntityManagerDestroy(ecs->managers.entity_manager);
 	MLComponentManagerDestroy(ecs->managers.component_manager);	
-	MLSystemDestroy(ecs->managers.system_manager);
+	MLSystemManagerDestroy(ecs->managers.system_manager);
 
 	*ecs = (ECS){ 0 };
 }
@@ -28,6 +28,8 @@ Entity_t MLECSNewEntity(ECS* ecs)
 void MLECSDestroyEntity(ECS* ecs, Entity_t entity)
 {
 	MLEntityManagerDestroyEntity(ecs->managers.entity_manager, entity);
+	MLComponentManagerEntityDestroyed(ecs->managers.component_manager, entity);
+	MLSystemManagerEntityDestroyed(ecs->managers.system_manager, entity);
 }
 
 void MLECSSetEntitySignature(ECS* ecs, Entity_t entity, Signature_t signature)
@@ -61,32 +63,25 @@ MLSystem* MLECSNewSystem(ECS* ecs, Signature_t signature)
 { \
 	ComponentArray* array = &ecs->managers.component_manager->Components.array[ENUM_COMPONENT_##type]; \
 	MLComponentArrayAttachComponent(array, entity, component); \
+	Signature_t signature = MLECSGetEntitySignature(ecs, entity); \
+	signature |= 1 << ENUM_COMPONENT_##type; \
+	MLECSSetEntitySignature(ecs, entity, signature); \
+	MLSystemManagerEntitySignatureChanged(ecs->managers.system_manager, entity, signature); \
 } 
 #include "../defs/MLComponents.defs"
 
 #undef COMPONENT
 
 
-void MLECSAttachComponent(ECS* ecs, Entity_t entity, void* component)
-{
-	ComponentArray* array = &ecs->managers.component_manager->Components.array[ENUM_COMPONENT_Transform];	
-	MLComponentArrayAttachComponent(array, entity, component);
-
-	Signature_t signature = MLECSGetEntitySignature(ecs, entity);
-	signature |= 1 << ENUM_COMPONENT_Transform;
-	MLECSSetEntitySignature(ecs, entity, signature);
-
-	
-	// notify system of changed signature
-	// but this is the gist
-} 
-
-
-
 #define COMPONENT(type) void MLECSRemoveComponent##type(ECS* ecs, Entity_t entity) \
 { \
 	ComponentArray* array = &ecs->managers.component_manager->Components.array[ENUM_COMPONENT_##type]; \
 	MLComponentArrayRemoveComponent(array, entity); \
+	Signature_t signature = MLECSGetEntitySignature(ecs, entity); \
+	const Signature_t temp = 1; \
+	signature &= ~(temp << ENUM_COMPONENT_##type); \
+	MLECSSetEntitySignature(ecs, entity, signature); \
+	MLSystemManagerEntitySignatureChanged(ecs->managers.system_manager, entity, signature); \
 } 
 #include "../defs/MLComponents.defs"
 

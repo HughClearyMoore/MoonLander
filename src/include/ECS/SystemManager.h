@@ -4,11 +4,7 @@
 
 #include "System.h"
 
-typedef struct SystemManager
-{
-	// DynArray<MLSystem*>
-	DynArray systems;
-} SystemManager;
+typedef struct SystemManager SystemManager;
 
 SystemManager* MLSystemManagerCreate();
 void MLSystemManagerDestroy(SystemManager* manager);

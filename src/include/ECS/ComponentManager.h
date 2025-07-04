@@ -13,3 +13,5 @@ typedef struct ComponentManager
 
 ComponentManager* MLComponentManagerCreate();
 void MLComponentManagerDestroy(ComponentManager* manager);
+
+void MLComponentManagerEntityDestroyed(ComponentManager* manager, Entity_t entity);

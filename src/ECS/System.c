@@ -2,12 +2,11 @@
 
 #include <assert.h>
 
-MLSystem MLSystemCreate(const Signature_t signature)
+MLSystem MLSystemCreate()
 {
 	MLSystem system = { 0 };
 
 	system.entities = DynArrayCreate(sizeof(Entity_t), MAX_ENTITIES, NULL);
-	system.signature = signature;
 
 	system.mapping.entity_to_index = DynArrayCreate(sizeof(size_t), MAX_ENTITIES, NULL);
 
@@ -35,7 +34,7 @@ void MLSystemTrackEntity(MLSystem* system, Entity_t entity)
 	const size_t idx = DynArraySize(&system->entities);
 
 	size_t* e_ptr = (size_t*)DynArrayGet(&system->mapping.entity_to_index, (size_t)entity);
-	*e_ptr = entity;
+	*e_ptr = idx;
 
 
 	DynArrayPush(&system->entities, &entity);
@@ -64,7 +63,11 @@ void MLSystemUntrackEntity(MLSystem* system, Entity_t entity)
 	*idx = MAX_ENTITIES;
 }
 
-inline Signature_t MLSystemGetSignature(MLSystem* system)
+STI_BOOL MLSystemIsTrackingEntity(MLSystem* system, Entity_t entity)
 {
-	return system->signature;
+	if (entity >= MAX_ENTITIES) return STI_FALSE;
+
+	const size_t idx = *(size_t*)DynArrayGet(&system->mapping.entity_to_index, (size_t)entity);
+
+	return idx < MAX_ENTITIES;
 }

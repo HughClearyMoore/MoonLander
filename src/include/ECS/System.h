@@ -3,12 +3,12 @@
 #include "ECSConfig.h"
 
 #include <DynArray.h>
+#include <Utility.h>
 
 typedef struct MLSystem
 {
 	// DynArray<Entity_t>
 	DynArray entities;
-	Signature_t signature;
 
 	struct
 	{
@@ -17,10 +17,10 @@ typedef struct MLSystem
 	} mapping;
 } MLSystem;
 
-MLSystem MLSystemCreate(const Signature_t signature);
+MLSystem MLSystemCreate();
 void MLSystemDestroy(MLSystem* system);
 
 void MLSystemTrackEntity(MLSystem* system, Entity_t entity);
 void MLSystemUntrackEntity(MLSystem* system, Entity_t entity);
 
-inline Signature_t MLSystemGetSignature(MLSystem* system);
+STI_BOOL MLSystemIsTrackingEntity(MLSystem* system, Entity_t entity);

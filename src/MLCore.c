@@ -18,7 +18,7 @@
 
 #include "ECS/Component.h"
 
-#include "ECS/System.h"
+#include "systems/PhysicsSystem.h"
 
 #define DRAW_DEBUG 0
 
@@ -126,6 +126,8 @@ void GameStart(Game* game)
 
 	//
 
+	PhysicsSystem physics = PhysicsSystemCreate(&game->ecs);
+
 	Transform t = { .x = 0.5f, .y = 0.5f, .z = 0.1f, .scale = 1.0f };
 
 	Entity_t entity = MLECSNewEntity(&game->ecs);
@@ -139,17 +141,11 @@ void GameStart(Game* game)
 
 	
 	Transform* t_ptr = MLECSGetComponentTransform(&game->ecs, entity);
-	
 
-	MLSystem sys = MLSystemCreate(1 << ENUM_COMPONENT_Transform);
 
-	MLSystemTrackEntity(&sys, entity);
-	MLSystemTrackEntity(&sys, entity_2);
-	
+	// surely fucking not?
 
-	MLSystemUntrackEntity(&sys, entity);
-
-	MLSystemDestroy(&sys);
+	PhysicsSystemUpdate(&physics, 1.0);
 
 
 	Script* scr = MLScriptManagetGet(&game->script_manager, SCRIPT_ENUM_PlayerScript);
