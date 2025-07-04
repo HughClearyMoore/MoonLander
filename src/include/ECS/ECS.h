@@ -5,14 +5,23 @@
 #include "ComponentManager.h"
 #include "SystemManager.h"
 
+//#include "systems/RenderingSystem.h"
+
+typedef struct RenderingSystem RenderingSystem;
+
 typedef struct ECS
 {
-	struct Managers
+	struct
 	{
 		EntityManager* entity_manager;
 		ComponentManager* component_manager;
 		SystemManager* system_manager;
 	} managers;
+
+	struct
+	{
+		RenderingSystem* rendering;
+	} systems;
 } ECS;
 
 ECS MLECSCreate();

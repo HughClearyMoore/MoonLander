@@ -19,12 +19,18 @@
 #include "ECS/Component.h"
 
 #include "systems/PhysicsSystem.h"
+#include "systems/RenderingSystem.h"
 
 #define DRAW_DEBUG 0
 
 static void WindowResizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+}
+
+static void LinkECSSystems(Game* game)
+{
+	game->ecs.systems.rendering = RenderingSystemCreate(game);
 }
 
 Game GameCreate(const size_t width, const size_t height, const char* title)
@@ -68,7 +74,9 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 	game.mesh_manager = MLMeshManagerCreate();
 	game.program_manager = MLShaderProgramManagerCreate();
 	game.script_manager = MLScriptManagerCreate();
+
 	game.ecs = MLECSCreate();
+	LinkECSSystems(&game);
 
 	MLLoadAssets(&game);
 
@@ -127,6 +135,7 @@ void GameStart(Game* game)
 	//
 
 	PhysicsSystem physics = PhysicsSystemCreate(&game->ecs);
+	RenderingSystem* rendering = RenderingSystemCreate(game);
 
 	Transform t = { .x = 0.5f, .y = 0.5f, .z = 0.1f, .scale = 1.0f };
 
@@ -139,23 +148,29 @@ void GameStart(Game* game)
 
 	MLECSAttachComponentTransform(&game->ecs, entity_2, &t);
 
+
+	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "elephant");
+	ShaderProgram* program = MLShaderProgramManagerGetProgram(&game->program_manager, "basic");
+
+	MLModel model = MLModelCreate(entry, program);
 	
 	Transform* t_ptr = MLECSGetComponentTransform(&game->ecs, entity);
+
+	MLECSAttachComponentModel(&game->ecs, entity_2, &model);
 
 	MLECSRemoveComponentTransform(&game->ecs, entity);
 
 	PhysicsSystemUpdate(&physics, 1.0);
+	RenderingSystemUpdate(rendering, 1.0);
+
+	RenderingSystemDestroy(rendering);
 
 
 	Script* scr = MLScriptManagetGet(&game->script_manager, SCRIPT_ENUM_PlayerScript);
 
 	scr->create(game, &scr->ctx);
 	scr->ready(game, scr->ctx);
-
-	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "elephant");
-	ShaderProgram* program = MLShaderProgramManagerGetProgram(&game->program_manager, "basic");
-
-	Model model = MLModelCreate(entry, program);
+	
 
 	double time = glfwGetTime();
 

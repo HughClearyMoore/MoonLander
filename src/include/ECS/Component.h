@@ -1,7 +1,7 @@
 #pragma once
 
 #include "components/TransformComponent.h"
-
+#include "components/ModelComponent.h"
 
 #define COMPONENT(type) ENUM_COMPONENT_##type,
 

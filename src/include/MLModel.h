@@ -5,16 +5,16 @@
 #include "MLMesh.h"
 #include "MLShader.h"
 
-typedef struct Model
+typedef struct MLModel
 {
 	Mesh* mesh;		
 	ShaderProgram* shader_program;
-} Model;
+} MLModel;
 
-Model MLModelCreate(Mesh* mesh, ShaderProgram* shader_program);
-void MLModelDestroy(Model* model);
+MLModel MLModelCreate(Mesh* mesh, ShaderProgram* shader_program);
+void MLModelDestroy(MLModel* model);
 
-void MLModelBind(Model* model);
-void MLModelUnbind(Model* model);
+void MLModelBind(MLModel* model);
+void MLModelUnbind(MLModel* model);
 
-void MLModelDraw(Model* model, double dt);
+void MLModelDraw(MLModel* model, double dt);

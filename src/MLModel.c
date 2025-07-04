@@ -8,35 +8,35 @@
 
 static double angle_count = 0.0;
 
-Model MLModelCreate(Mesh* mesh, ShaderProgram* shader_program)
+MLModel MLModelCreate(Mesh* mesh, ShaderProgram* shader_program)
 {
-	Model model = { 0 };
+	MLModel model = { 0 };
 	model.mesh = mesh;
 	model.shader_program = shader_program;
 
 	return model;
 }
 
-void MLModelDestroy(Model* model)
+void MLModelDestroy(MLModel* model)
 {	
-	*model = (Model){ 0 };
+	*model = (MLModel){ 0 };
 }
 
-void MLModelBind(Model* model)
+void MLModelBind(MLModel* model)
 {
 	glBindVertexArray(model->mesh->VAO);
 	//glBindBuffer(GL_ARRAY_BUFFER, model->mesh_entry->VBO);
 	glUseProgram(model->shader_program->id);
 }
 
-void MLModelUnbind(Model* model)
+void MLModelUnbind(MLModel* model)
 {
 	glUseProgram(0);
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
-void MLModelDraw(Model* model, double dt)
+void MLModelDraw(MLModel* model, double dt)
 {
 	MLModelBind(model);
 
