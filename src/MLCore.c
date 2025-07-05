@@ -20,6 +20,7 @@
 
 #include "systems/PhysicsSystem.h"
 #include "systems/RenderingSystem.h"
+#include "systems/ScriptSystem.h"
 
 #define DRAW_DEBUG 0
 
@@ -32,6 +33,7 @@ static void LinkECSSystems(Game* game)
 {
 	game->ecs.systems.rendering = RenderingSystemCreate(game);
 	game->ecs.systems.physics = PhysicsSystemCreate(game);
+	game->ecs.systems.scripts = ScriptSystemCreate(game);
 }
 
 Game GameCreate(const size_t width, const size_t height, const char* title)
@@ -138,6 +140,8 @@ void GameStart(Game* game)
 
 	PhysicsSystem* physics = &game->ecs.systems.physics;
 	RenderingSystem* rendering = &game->ecs.systems.rendering;
+	ScriptSystem* scripts = &game->ecs.systems.scripts;
+
 
 	Transform t = { .x = 0.5f, .y = 0.5f, .z = 0.1f, .scale = 1.0f };
 
@@ -154,18 +158,27 @@ void GameStart(Game* game)
 	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "elephant");
 	ShaderProgram* program = MLShaderProgramManagerGetProgram(&game->program_manager, "basic");
 
+
 	MLModel model = MLModelCreate(entry, program);	
+
+	Mesh* teapot = MLMeshManagerGetMesh(&game->mesh_manager, "teapot");
+
+	MLModel teapot_model = MLModelCreate(teapot, program);
 
 	Transform* t_ptr = MLECSGetComponentTransform(&game->ecs, entity);
 
 	Model mod_component = { .mesh = entry, .program = program };
 
 	MLECSAttachComponentModel(&game->ecs, entity_2, &mod_component);
+	MLECSAttachComponentModel(&game->ecs, entity, &teapot_model);
 
 	MLECSRemoveComponentTransform(&game->ecs, entity);
 
-	PhysicsSystemUpdate(physics, 1.0);
-	RenderingSystemUpdate(game, rendering, 1.0);
+	t.x = 0.1;
+	t.scale = 0.5;
+
+	MLECSAttachComponentTransform(&game->ecs, entity, &t);
+
 
 	Script script = ScriptComponentCreate(game, SCRIPT_ENUM_PlayerScript);
 
@@ -183,11 +196,9 @@ void GameStart(Game* game)
 
 		glfwPollEvents();
 
-		script.script->update(game, entity_2, script.context, delta_time);
+		ScriptSystemUpdate(game, scripts, delta_time);
 
 		MLInputResetMarked(&game->input);
-
-
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

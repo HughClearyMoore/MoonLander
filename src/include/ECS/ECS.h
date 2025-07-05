@@ -7,6 +7,7 @@
 
 #include "systems/RenderingSystem.h"
 #include "systems/PhysicsSystem.h"
+#include "Systems/ScriptSystem.h"
 
 
 typedef struct ECS
@@ -16,12 +17,14 @@ typedef struct ECS
 		EntityManager* entity_manager;
 		ComponentManager* component_manager;
 		SystemManager* system_manager;
+		ScriptManager* script_manager;
 	} managers;
 
 	struct
 	{
 		RenderingSystem rendering;
 		PhysicsSystem physics;
+		ScriptSystem scripts;
 	} systems;
 } ECS;
 
