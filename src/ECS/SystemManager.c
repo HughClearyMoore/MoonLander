@@ -38,8 +38,9 @@ void MLSystemManagerDestroy(SystemManager* manager)
 {
 	DynArrayDestroy(&manager->systems);
 
-
 	*manager = (SystemManager){ 0 };
+
+	free(manager);
 }
 
 MLSystem* MLSystemManagerNewSystem(SystemManager* manager, Signature_t signature)

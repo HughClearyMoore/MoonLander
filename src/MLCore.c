@@ -31,6 +31,7 @@ static void WindowResizeCallback(GLFWwindow* window, int width, int height)
 static void LinkECSSystems(Game* game)
 {
 	game->ecs.systems.rendering = RenderingSystemCreate(game);
+	game->ecs.systems.physics = PhysicsSystemCreate(game);
 }
 
 Game GameCreate(const size_t width, const size_t height, const char* title)
@@ -76,7 +77,6 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 	game.script_manager = MLScriptManagerCreate();
 
 	game.ecs = MLECSCreate();
-	LinkECSSystems(&game);
 
 	MLLoadAssets(&game);
 
@@ -99,6 +99,8 @@ void GameDestroy(Game* game)
 
 void GameStart(Game* game)
 {
+	LinkECSSystems(game);
+
 	game->is_running = STI_TRUE;
 
 	glClearColor(
@@ -134,8 +136,8 @@ void GameStart(Game* game)
 
 	//
 
-	PhysicsSystem physics = PhysicsSystemCreate(&game->ecs);
-	RenderingSystem* rendering = RenderingSystemCreate(game);
+	PhysicsSystem* physics = &game->ecs.systems.physics;
+	RenderingSystem* rendering = &game->ecs.systems.rendering;
 
 	Transform t = { .x = 0.5f, .y = 0.5f, .z = 0.1f, .scale = 1.0f };
 
@@ -144,7 +146,7 @@ void GameStart(Game* game)
 
 	MLECSAttachComponentTransform(&game->ecs, entity, &t);
 
-	t.x = 50.0;
+	t.x = 0.2;
 
 	MLECSAttachComponentTransform(&game->ecs, entity_2, &t);
 
@@ -152,25 +154,24 @@ void GameStart(Game* game)
 	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "elephant");
 	ShaderProgram* program = MLShaderProgramManagerGetProgram(&game->program_manager, "basic");
 
-	MLModel model = MLModelCreate(entry, program);
-	
+	MLModel model = MLModelCreate(entry, program);	
+
 	Transform* t_ptr = MLECSGetComponentTransform(&game->ecs, entity);
 
-	MLECSAttachComponentModel(&game->ecs, entity_2, &model);
+	Model mod_component = { .mesh = entry, .program = program };
+
+	MLECSAttachComponentModel(&game->ecs, entity_2, &mod_component);
 
 	MLECSRemoveComponentTransform(&game->ecs, entity);
 
-	PhysicsSystemUpdate(&physics, 1.0);
-	RenderingSystemUpdate(rendering, 1.0);
+	PhysicsSystemUpdate(physics, 1.0);
+	RenderingSystemUpdate(game, rendering, 1.0);
 
-	RenderingSystemDestroy(rendering);
+	Script script = ScriptComponentCreate(game, SCRIPT_ENUM_PlayerScript);
 
+	MLECSAttachComponentScript(&game->ecs, entity_2, &script);
 
-	Script* scr = MLScriptManagetGet(&game->script_manager, SCRIPT_ENUM_PlayerScript);
-
-	scr->create(game, &scr->ctx);
-	scr->ready(game, scr->ctx);
-	
+	//script.script->ready(game, script.context); // this needs to be called by some sort of scene management		
 
 	double time = glfwGetTime();
 
@@ -182,7 +183,7 @@ void GameStart(Game* game)
 
 		glfwPollEvents();
 
-		scr->update(game, scr->ctx, delta_time);
+		script.script->update(game, entity_2, script.context, delta_time);
 
 		MLInputResetMarked(&game->input);
 
@@ -190,10 +191,10 @@ void GameStart(Game* game)
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		MLModelDraw(&model, delta_time);
+		RenderingSystemUpdate(game, rendering, delta_time);
 
 		glfwSwapBuffers(game->window);
 	}
 
-	scr->destroy(game, scr->ctx);
+	script.script->destroy(game, entity_2, script.context);
 }

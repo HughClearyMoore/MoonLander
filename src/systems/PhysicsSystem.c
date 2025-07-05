@@ -3,15 +3,18 @@
 #include <assert.h>
 #include <stdio.h>
 
-PhysicsSystem PhysicsSystemCreate(ECS* ecs)
+#include "MLCore.h"
+#include "ECS/Component.h"
+
+PhysicsSystem PhysicsSystemCreate(Game* game)
 {
 	PhysicsSystem system = { 0 };
 	Signature_t signature = 0;
 	signature |= 1 << ENUM_COMPONENT_Transform;
 
-	system.system = MLECSNewSystem(ecs, signature);
+	system.system = MLECSNewSystem(&game->ecs, signature);
 
-	system.ecs = ecs;
+	system.game = game;
 
 	return system;
 }
@@ -19,7 +22,7 @@ PhysicsSystem PhysicsSystemCreate(ECS* ecs)
 void PhysicsSystemUpdate(PhysicsSystem* physics_system, double dt)
 {
 	MLSystem* system = physics_system->system;
-	ECS* ecs = physics_system->ecs;
+	ECS* ecs = &physics_system->game->ecs;
 
 	const size_t sz = DynArraySize(&system->entities);
 	Entity_t* entities = system->entities.data;

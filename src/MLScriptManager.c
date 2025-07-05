@@ -3,8 +3,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "MLScript.h"
-
 #define SCRIPT(name) case SCRIPT_ENUM_##name: return #name;
 const char* MLGetScriptName(Script_t script_type)
 {
@@ -17,9 +15,9 @@ const char* MLGetScriptName(Script_t script_type)
 }
 #undef SCRIPT
 
-static void ScriptDeleter(void** ptr)
+static void ScriptDeleter(void* ptr)
 {
-	Script* script = *(Script**)ptr;
+	MLScript* script = *(MLScript**)ptr;
 
 	free(script);	
 }
@@ -27,15 +25,15 @@ static void ScriptDeleter(void** ptr)
 ScriptManager MLScriptManagerCreate()
 {
 	ScriptManager manager = { 0 };
-	manager.scripts = DynArrayCreate(sizeof(Script*), 0, &ScriptDeleter);
+	manager.scripts = DynArrayCreate(sizeof(MLScript*), 0, &ScriptDeleter);
 
 	
 	// time for witch craft
 	// register all the scripts via an index with their enum value
 	
-	Script* scr = NULL;
+	MLScript* scr = NULL;
 
-#define SCRIPT(name) scr = calloc(1, sizeof(Script)); \
+#define SCRIPT(name) scr = calloc(1, sizeof(MLScript)); \
 	assert(scr); \
 	*scr = ScriptLink##name(); \
 	DynArrayPush(&manager.scripts, &scr);
@@ -53,7 +51,7 @@ void MLScriptManagerDestroy(ScriptManager* manager)
 	*manager = (ScriptManager){ 0 };
 }
 
-Script* MLScriptManagetGet(ScriptManager* manager, Script_t script_type)
+MLScript* MLScriptManagetGet(ScriptManager* manager, Script_t script_type)
 {
-	return *(Script**)DynArrayGet(&manager->scripts, script_type);
+	return *(MLScript**)DynArrayGet(&manager->scripts, script_type);
 }

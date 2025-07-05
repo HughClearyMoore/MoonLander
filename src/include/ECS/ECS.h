@@ -5,9 +5,9 @@
 #include "ComponentManager.h"
 #include "SystemManager.h"
 
-//#include "systems/RenderingSystem.h"
+#include "systems/RenderingSystem.h"
+#include "systems/PhysicsSystem.h"
 
-typedef struct RenderingSystem RenderingSystem;
 
 typedef struct ECS
 {
@@ -20,7 +20,8 @@ typedef struct ECS
 
 	struct
 	{
-		RenderingSystem* rendering;
+		RenderingSystem rendering;
+		PhysicsSystem physics;
 	} systems;
 } ECS;
 

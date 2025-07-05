@@ -17,8 +17,9 @@ void MLEntityManagerDestroy(EntityManager* manager)
 {
 	DynArrayDestroy(&manager->free_entities);
 
-
 	*manager = (EntityManager){ 0 };
+
+	free(manager);	
 }
 
 Entity_t MLEntityManagerNewEntity(EntityManager* manager)

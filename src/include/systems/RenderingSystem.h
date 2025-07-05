@@ -1,6 +1,8 @@
 #pragma once
 
-#include "MLCore.h"
+#include "ECS/System.h"
+
+typedef struct Game Game;
 
 typedef struct RenderingSystem
 {
@@ -8,7 +10,6 @@ typedef struct RenderingSystem
 	Game* game;
 } RenderingSystem;
 
-RenderingSystem* RenderingSystemCreate(Game* game);
+RenderingSystem RenderingSystemCreate(Game* game);
 
-void RenderingSystemUpdate(RenderingSystem* rendering_system, double dt);
-void RenderingSystemDestroy(RenderingSystem* rendering_system);
+void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double dt);

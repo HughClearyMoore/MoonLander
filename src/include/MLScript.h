@@ -1,34 +1,36 @@
 #pragma once
 
+#include "ECS/ECSConfig.h"
+
 typedef struct Game Game;
 typedef void* ScriptContext;
 
-typedef void(*OnUpdate_t)(Game* game_ctx, ScriptContext ctx, double dt);
-typedef void(*OnReady_t)(Game* game_ctx, ScriptContext ctx);
+typedef void(*OnUpdate_t)(Game* game_ctx, Entity_t entity, ScriptContext ctx, double dt);
+typedef void(*OnReady_t)(Game* game_ctx, Entity_t entity, ScriptContext ctx);
 typedef void(*OnCreate_t)(Game* game_ctx, ScriptContext* ctx_ptr);
-typedef void(*OnDestroy_t)(Game* game_ctx, ScriptContext ctx);
+typedef void(*OnDestroy_t)(Game* game_ctx, Entity_t entity, ScriptContext ctx);
 
-typedef struct Script
-{
-	void* ctx;
+typedef struct MLScript
+{	
 	OnUpdate_t update;
 	OnReady_t ready;
 	OnDestroy_t destroy;
 	OnCreate_t create;
-} Script;
+} MLScript;
+
 
 #define SCRIPT_END
 
 #define SCRIPT_START(name) \
 	void ScriptCreate##name(Game* game_ctx, ScriptContext* ctx_ptr); \
-	void OnReady##name(Game* game_ctx, ScriptContext ctx); \
-	void OnDestroy##name(Game* game_ctx, ScriptContext ctx);
+	void OnReady##name(Game* game_ctx, Entity_t entity, ScriptContext ctx); \
+	void OnDestroy##name(Game* game_ctx, Entity_t entity, ScriptContext ctx);
 
 #define SCRIPT(name) \
 	SCRIPT_START(name)
 
 #define SCRIPT_HAS_UPDATE(name) \
-	void OnUpdate##name(Game* game_ctx, ScriptContext ctx, double dt);
+	void OnUpdate##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, double dt);
 
 	
 #include "../defs/MLScripts.defs"
@@ -40,14 +42,14 @@ typedef struct Script
 #define SCRIPT_HAS_UPDATE(name)
 
 #define SCRIPT(name) \
-	Script ScriptLink##name();
+	MLScript ScriptLink##name();
 
 #include "../defs/MLScripts.defs"
 
 #undef SCRIPT
 
 #define CREATE_FUNCTION(name) void ScriptCreate##name(Game* game_ctx, ScriptContext* ctx_ptr)
-#define READY_FUNCTION(name) void OnReady##name(Game* game_ctx, ScriptContext ctx)
-#define DESTROY_FUNCTION(name) void OnDestroy##name(Game* game_ctx, ScriptContext ctx)
-#define UPDATE_FUNCTION(name) void OnUpdate##name(Game* game_ctx, ScriptContext ctx, double dt)
+#define READY_FUNCTION(name) void OnReady##name(Game* game_ctx, Entity_t entity, ScriptContext ctx)
+#define DESTROY_FUNCTION(name) void OnDestroy##name(Game* game_ctx, Entity_t entity, ScriptContext ctx)
+#define UPDATE_FUNCTION(name) void OnUpdate##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, double dt)
 #define GET_INPUT &game_ctx->input;

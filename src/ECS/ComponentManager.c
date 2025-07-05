@@ -26,6 +26,8 @@ void MLComponentManagerDestroy(ComponentManager* manager)
 	}
 
 	*manager = (ComponentManager){ 0 };
+
+	free(manager);
 }
 
 void MLComponentManagerEntityDestroyed(ComponentManager* manager, Entity_t entity)

@@ -25,4 +25,4 @@ const char* MLGetScriptName(Script_t script_type);
 ScriptManager MLScriptManagerCreate();
 void MLScriptManagerDestroy(ScriptManager* manager);
 
-Script* MLScriptManagetGet(ScriptManager* manager, Script_t script_type);
+MLScript* MLScriptManagetGet(ScriptManager* manager, Script_t script_type);

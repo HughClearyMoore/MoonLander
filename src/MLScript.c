@@ -3,9 +3,9 @@
 #include "MLCore.h"
 
 #define SCRIPT(name) \
-	Script ScriptLink##name() \
+	MLScript ScriptLink##name() \
 	{ \
-		Script scr = {0}; \
+		MLScript scr = {0}; \
 		scr.ready = &OnReady##name; \
 		scr.destroy = &OnDestroy##name; \
 		scr.create = &ScriptCreate##name;

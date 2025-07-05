@@ -2,6 +2,7 @@
 
 #include "components/TransformComponent.h"
 #include "components/ModelComponent.h"
+#include "components/ScriptComponent.h"
 
 #define COMPONENT(type) ENUM_COMPONENT_##type,
 
@@ -19,7 +20,7 @@ typedef enum Component_Enum
 
 #undef COMPONENT
 
-#define COMPONENT(type) void MLComponentDestroy##type(void* component);
+#define COMPONENT(type) void MLComponentDestroy##type( void* component);
 
 #include "../defs/MLComponents.defs"
 

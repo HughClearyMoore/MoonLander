@@ -1,13 +1,15 @@
 #pragma once
 
-#include "ECS/ecs.h"
+#include "../ECS/System.h"
+
+typedef struct Game Game;
 
 typedef struct PhysicsSystem
 {
 	MLSystem* system;
-	ECS* ecs;
+	Game* game;
 } PhysicsSystem;
 
-PhysicsSystem PhysicsSystemCreate(ECS* ecs);
+PhysicsSystem PhysicsSystemCreate(Game* game);
 
 void PhysicsSystemUpdate(PhysicsSystem* physics_system, double dt);

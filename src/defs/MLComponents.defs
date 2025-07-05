@@ -1,2 +1,3 @@
 COMPONENT(Transform)
 COMPONENT(Model)
+COMPONENT(Script)

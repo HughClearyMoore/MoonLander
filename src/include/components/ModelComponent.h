@@ -1,8 +1,10 @@
 #pragma once
 
-#include "../MLModel.h"
+#include "../MLMesh.h"
+#include "../MLShader.h"
 
 typedef struct Model
 {
-	MLModel* model;
+	Mesh* mesh;
+	ShaderProgram* program;
 } Model;
