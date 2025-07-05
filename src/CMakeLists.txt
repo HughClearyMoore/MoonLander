@@ -25,6 +25,7 @@ set(HEADERS
     "include/ECS/SystemManager.h"
     "include/systems/PhysicsSystem.h"
     "include/systems/RenderingSystem.h"
+    "include/systems/ScriptSystem.h"
 )
 
 set(SOURCES
@@ -49,6 +50,7 @@ set(SOURCES
     "ECS/SystemManager.c"
     "systems/PhysicsSystem.c"
     "systems/RenderingSystem.c"
+    "systems/ScriptSystem.c"
 )
 
 set(DEFS
