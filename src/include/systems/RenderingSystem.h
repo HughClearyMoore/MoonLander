@@ -7,9 +7,10 @@ typedef struct Game Game;
 typedef struct RenderingSystem
 {
 	MLSystem* system;
-	Game* game;
+	Entity_t camera;
 } RenderingSystem;
 
 RenderingSystem RenderingSystemCreate(Game* game);
+void RenderingSystemInitialise(RenderingSystem* rendering_system, Game* game);
 
 void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double dt);

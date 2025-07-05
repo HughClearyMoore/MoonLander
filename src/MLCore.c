@@ -103,6 +103,9 @@ void GameStart(Game* game)
 {
 	LinkECSSystems(game);
 
+
+	RenderingSystemInitialise(&game->ecs.systems.rendering, game);
+
 	game->is_running = STI_TRUE;
 
 	glClearColor(
@@ -156,18 +159,14 @@ void GameStart(Game* game)
 
 
 	Mesh* entry = MLMeshManagerGetMesh(&game->mesh_manager, "elephant");
-	ShaderProgram* program = MLShaderProgramManagerGetProgram(&game->program_manager, "basic");
+	ShaderProgram* program = MLShaderProgramManagerGetProgram(&game->program_manager, "basic");	
 
-
-	MLModel model = MLModelCreate(entry, program);	
-
-	Mesh* teapot = MLMeshManagerGetMesh(&game->mesh_manager, "teapot");
-
-	MLModel teapot_model = MLModelCreate(teapot, program);
+	Mesh* teapot = MLMeshManagerGetMesh(&game->mesh_manager, "teapot");	
 
 	Transform* t_ptr = MLECSGetComponentTransform(&game->ecs, entity);
 
 	Model mod_component = { .mesh = entry, .program = program };
+	Model teapot_model = { .mesh = teapot, .program = program };
 
 	MLECSAttachComponentModel(&game->ecs, entity_2, &mod_component);
 	MLECSAttachComponentModel(&game->ecs, entity, &teapot_model);
@@ -180,9 +179,9 @@ void GameStart(Game* game)
 	MLECSAttachComponentTransform(&game->ecs, entity, &t);
 
 
-	Script script = ScriptComponentCreate(game, SCRIPT_ENUM_PlayerScript);
+	//Script script = ScriptComponentCreate(game, SCRIPT_ENUM_PlayerScript);
 
-	MLECSAttachComponentScript(&game->ecs, entity_2, &script);
+	//MLECSAttachComponentScript(&game->ecs, entity_2, &script);
 
 	//script.script->ready(game, script.context); // this needs to be called by some sort of scene management		
 
@@ -205,7 +204,5 @@ void GameStart(Game* game)
 		RenderingSystemUpdate(game, rendering, delta_time);
 
 		glfwSwapBuffers(game->window);
-	}
-
-	script.script->destroy(game, entity_2, script.context);
+	}	
 }

@@ -58,11 +58,7 @@ RenderingSystem RenderingSystemCreate(Game* game)
 {
 	ECS* ecs = &game->ecs;
 	RenderingSystem system = { 0 };
-
 	
-
-
-	system.game = game;
 	Signature_t signature = 0;
 	signature |= 1 << ENUM_COMPONENT_Transform;
 	signature |= 1 << ENUM_COMPONENT_Model;
@@ -72,13 +68,31 @@ RenderingSystem RenderingSystemCreate(Game* game)
 	return system;
 }
 
+void RenderingSystemInitialise(RenderingSystem* rendering_system, Game* game)
+{
+	ECS* ecs = &game->ecs;	
+	// construct a camera
+
+	rendering_system->camera = MLECSNewEntity(ecs);
+
+	Transform transform = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .rx = 0.0f, .ry = 0.0f, .rz = 0.0f };
+
+	MLECSAttachComponentTransform(ecs, rendering_system->camera, &transform);
+
+	Script script = ScriptComponentCreate(game, SCRIPT_ENUM_PlayerScript);
+
+	MLECSAttachComponentScript(ecs, rendering_system->camera, &script);
+
+	//
+}
+
 void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double dt)
 {
 
 	const size_t sz = DynArraySize(&rendering_system->system->entities);
 
 	Entity_t* entities = (Entity_t*)rendering_system->system->entities.data;
-	ECS* ecs = &rendering_system->game->ecs;
+	ECS* ecs = &game->ecs;
 
 	//
 
@@ -94,8 +108,21 @@ void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double
 
 	glm_perspective(glm_rad(60.0f), aspect, 0.1f, 100.0f, proj);
 
-	glm_lookat((vec3){0.0f, 0.0f, 5.0f}, 
-		(vec3){0.0f, 0.0f, 0.0f},
+	Transform* camera_transform = MLECSGetComponentTransform(ecs, rendering_system->camera);
+
+	vec3 forward_vec = { 
+		cos(camera_transform->rx) * sin(camera_transform->ry), 
+		sin(camera_transform->rx), 
+		cos(camera_transform->rx) * cos(camera_transform->ry) };
+	glm_normalize(forward_vec);
+
+	vec3 camera_pos = { (float)camera_transform->x, (float)camera_transform->y, (float)camera_transform->z };
+	
+	vec3 target;
+	glm_vec3_add(forward_vec, camera_pos, target);
+
+	glm_lookat(camera_pos, 
+		target,
 		(vec3){0.0f, 1.0f, 0.0f},
 		view);
 
