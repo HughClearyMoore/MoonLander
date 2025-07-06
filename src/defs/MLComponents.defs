@@ -1,3 +1,4 @@
 COMPONENT(Transform)
 COMPONENT(Model)
 COMPONENT(Script)
+COMPONENT(Name)

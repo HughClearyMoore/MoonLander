@@ -11,3 +11,4 @@ typedef struct ScriptSystem
 
 ScriptSystem ScriptSystemCreate(Game* game);
 void ScriptSystemUpdate(Game* game, ScriptSystem* system, double dt);
+void ScriptSystemDestroy(Game* game, ScriptSystem* system);

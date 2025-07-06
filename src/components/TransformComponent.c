@@ -6,7 +6,7 @@ COMPONENT_DESTROY(Transform)
 {
 	Transform* transform = (Transform*)component;
 
-	printf("%f, %f, %f\n", transform->x, transform->y, transform->z);
+	printf("transform destroyed: %f, %f, %f\n", transform->x, transform->y, transform->z);
 
 	*transform = (Transform){ 0 };
 }

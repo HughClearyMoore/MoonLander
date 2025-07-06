@@ -1,3 +1,7 @@
 SCRIPT(PlayerScript)
 SCRIPT_HAS_UPDATE(PlayerScript)
 SCRIPT_END
+
+SCRIPT(TeapotScript)
+SCRIPT_HAS_UPDATE(TeapotScript)
+SCRIPT_END

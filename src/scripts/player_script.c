@@ -1,35 +1,24 @@
+#include "scripts/player_script.h"
+
 #include "MLScript.h"
 
 #include <stdio.h>
-
 #include <stdlib.h>
 
+#include <cglm/cglm.h>
+
 #include "MLCore.h"
+#include "systems/NameSystem.h"
 
-typedef struct PlayerContext
-{
-	int health;
-} PlayerContext;
+#include "scripts/teapot_script.h"
 
-CREATE_FUNCTION(PlayerScript)
-{
-	PlayerContext* my_context = calloc(1, sizeof(PlayerContext));	
-
-	*ctx_ptr = my_context;
-
-	printf("pointer is %zu\n", (size_t)*ctx_ptr);
-	return;
-}
+DEFAULT_CREATE_FUNCTION(PlayerScript, PlayerContext)
 
 DESTROY_FUNCTION(PlayerScript)
 {
 	PlayerContext* player_ctx = (PlayerContext*)ctx;
 
-	printf("Destroying player script!\n");
-
-	printf("pointer is %zu\n", (size_t)player_ctx);
-
-	free(player_ctx);
+	printf("oh no I died! my health is %d.\n", player_ctx->health);
 
 	return;
 }
@@ -39,9 +28,20 @@ READY_FUNCTION(PlayerScript)
 	PlayerContext* player_context = (PlayerContext*)ctx;
 
 	player_context->health = 10;
+	player_context->killing_teapot = STI_FALSE;
 
 	printf("ready!\n");
 
+	player_context->teapot = NameSystemFind(game_ctx, "teapot");
+
+	if (player_context->teapot < MAX_ENTITIES)
+	{
+		printf("Found teapot at entity: {%zu}\n", (size_t)player_context->teapot);
+	}
+	else
+	{
+		printf("Couldn't find teapot!\n");
+	}
 
 	return;
 }
@@ -50,89 +50,117 @@ UPDATE_FUNCTION(PlayerScript)
 {
 	PlayerContext* player_ctx = (PlayerContext*)ctx;	
 	Input* input = GET_INPUT;
-	/*
 
-	if (input->keys[GLFW_KEY_A].just_pressed)
+	if (input->keys[GLFW_KEY_T].just_pressed)
 	{
-		printf("A pressed!\n");
+		// attempt to nuke the teapot
+		//MLECSDestroyEntity(&game_ctx->ecs, player_ctx->teapot);
+		player_ctx->killing_teapot = STI_TRUE;
 	}
 
-	if (input->keys[GLFW_KEY_A].is_pressed)
+	if (player_ctx->killing_teapot)
 	{
-		printf("A down!\n");
-	}
+		Script* teapot_script = MLECSGetComponentScript(&game_ctx->ecs, player_ctx->teapot);
+		if (teapot_script)
+		{
+			TeapotCtx* teapot_ctx = (TeapotCtx*)teapot_script->context;
 
-	if (input->keys[GLFW_KEY_A].just_released)
-	{
-		printf("A released!\n");
+			teapot_ctx->life_force -= dt * 10.0;
+		}
 	}
-
-	if (input->any_key.just_pressed)
-	{
-		printf("The any key was pressed!\n");
-	}
-
-	if (input->any_key.just_released)
-	{
-		printf("The any key was released!\n");
-	}
-
-	*/
 
 
 	Transform* t = MLECSGetComponentTransform(&game_ctx->ecs, entity);
 
-	const double speed = 1.0f;
+	vec3 forward_vec = {
+	cos(t->rx) * sin(t->ry),
+	sin(t->rx),
+	cos(t->rx) * cos(t->ry) };
+	glm_normalize(forward_vec);
+
+	vec3 world_up = { 0.0f, 1.0f, 0.0f };
+	vec3 right_vec;
+
+	glm_vec3_cross(world_up, forward_vec, right_vec);
+	glm_normalize(right_vec);
+	
+	vec3 delta_pos = { 0.0f, 0.0f, 0.0f };
+
+	const float speed = 1.0f * dt;
 
 	if (input->keys[GLFW_KEY_S].is_pressed)
 	{
-		t->z += 5 * speed * dt;
+		vec3 delta;
+		glm_vec3_scale(forward_vec, -1.0f * speed, delta);
+		glm_vec3_add(delta_pos, delta, delta_pos);		
 	}
 
 	if (input->keys[GLFW_KEY_W].is_pressed)
 	{
-		t->z -= 5 * speed * dt;
+		vec3 delta;
+		glm_vec3_scale(forward_vec, 1.0f * speed, delta);
+		glm_vec3_add(delta_pos, delta, delta_pos);
 	}
 
 	if (input->keys[GLFW_KEY_A].is_pressed)
 	{
-		t->x -= speed * dt;
+		vec3 delta;
+		glm_vec3_scale(right_vec, 1.0f * speed, delta);
+		glm_vec3_add(delta_pos, delta, delta_pos);
 	}
 
 	if (input->keys[GLFW_KEY_D].is_pressed)
 	{
-		t->x += speed * dt;
+		vec3 delta;
+		glm_vec3_scale(right_vec, -1.0f * speed, delta);
+		glm_vec3_add(delta_pos, delta, delta_pos);
 	}
 
 	if (input->keys[GLFW_KEY_UP].is_pressed)
 	{
-		t->y += speed * dt;
+		vec3 delta;
+		glm_vec3_scale(world_up, 1.0f * speed, delta);
+		glm_vec3_add(delta_pos, delta, delta_pos);
 	}
 
 	if (input->keys[GLFW_KEY_DOWN].is_pressed)
 	{
-		t->y -= speed * dt;
+		vec3 delta;
+		glm_vec3_scale(world_up, -1.0f * speed, delta);
+		glm_vec3_add(delta_pos, delta, delta_pos);
 	}
 
 	if (input->keys[GLFW_KEY_Q].is_pressed)
 	{
-		t->ry -= speed * dt;
+		t->ry -= speed;
 	}
 
 	if (input->keys[GLFW_KEY_E].is_pressed)
 	{
-		t->ry += speed * dt;
+		t->ry += speed;
 	}
 
 	if (input->keys[GLFW_KEY_M].is_pressed)
 	{
-		t->scale += speed * dt;
+		t->scale += speed;
 	}
 
 	if (input->keys[GLFW_KEY_N].is_pressed)
 	{
-		t->scale -= speed * dt;
+		t->scale -= speed;
 	}
+
+	vec3 pos = {
+		(float)t->x,
+		(float)t->y,
+		(float)t->z
+	};
+
+	glm_vec3_add(pos, delta_pos, pos);
+
+	t->x = pos[0];
+	t->y = pos[1];
+	t->z = pos[2];
 
 	return;
 }

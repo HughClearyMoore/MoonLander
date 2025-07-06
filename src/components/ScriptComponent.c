@@ -2,6 +2,8 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
+
 #include "MLCore.h"
 
 Script ScriptComponentCreate(Game* game, Script_t type)
@@ -22,5 +24,9 @@ Script ScriptComponentCreate(Game* game, Script_t type)
 
 COMPONENT_DESTROY(Script)
 {
-	printf("Destroying script\n");
+	Script* script = (Script*)component;
+
+	printf("Freeing script data at: {%p}\n", script->context);
+
+	free(script->context);
 }

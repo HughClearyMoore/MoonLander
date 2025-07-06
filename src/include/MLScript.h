@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdlib.h>
+
 #include "ECS/ECSConfig.h"
 
 typedef struct Game Game;
@@ -53,3 +55,9 @@ typedef struct MLScript
 #define DESTROY_FUNCTION(name) void OnDestroy##name(Game* game_ctx, Entity_t entity, ScriptContext ctx)
 #define UPDATE_FUNCTION(name) void OnUpdate##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, double dt)
 #define GET_INPUT &game_ctx->input;
+
+#define DEFAULT_CREATE_FUNCTION(name, context_type) CREATE_FUNCTION(name) \
+{ \
+	context_type* ctx = calloc(1, sizeof(context_type));\
+	*ctx_ptr = ctx; \
+}

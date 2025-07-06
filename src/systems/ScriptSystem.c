@@ -31,5 +31,24 @@ void ScriptSystemUpdate(Game* game, ScriptSystem* system, double dt)
 			script->script->update(game, e, script->context, dt);
 		}
 	}
+}
 
+void ScriptSystemDestroy(Game* game, ScriptSystem* system)
+{
+	Entity_t* entities = (Entity_t*)system->system->entities.data;
+
+	const size_t sz = DynArraySize(&system->system->entities);
+
+
+	for (size_t i = 0; i < sz; ++i)
+	{
+		Entity_t e = entities[i];
+
+		Script* script = MLECSGetComponentScript(&game->ecs, e);
+
+		if (script->script->destroy)
+		{
+			script->script->destroy(game, e, script->context);
+		}
+	}
 }

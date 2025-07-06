@@ -26,6 +26,7 @@ set(HEADERS
     "include/systems/PhysicsSystem.h"
     "include/systems/RenderingSystem.h"
     "include/systems/ScriptSystem.h"
+    "include/systems/NameSystem.h"
 )
 
 set(SOURCES
@@ -51,6 +52,7 @@ set(SOURCES
     "systems/PhysicsSystem.c"
     "systems/RenderingSystem.c"
     "systems/ScriptSystem.c"
+    "systems/NameSystem.c"
 )
 
 set(DEFS

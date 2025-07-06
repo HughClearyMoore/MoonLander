@@ -34,6 +34,7 @@ static void LinkECSSystems(Game* game)
 	game->ecs.systems.rendering = RenderingSystemCreate(game);
 	game->ecs.systems.physics = PhysicsSystemCreate(game);
 	game->ecs.systems.scripts = ScriptSystemCreate(game);
+	game->ecs.systems.names = NameSystemCreate(game);
 }
 
 Game GameCreate(const size_t width, const size_t height, const char* title)
@@ -178,6 +179,11 @@ void GameStart(Game* game)
 
 	MLECSAttachComponentTransform(&game->ecs, entity, &t);
 
+	Name name_component = NameComponentCreate("teapot");
+	MLECSAttachComponentName(&game->ecs, entity, &name_component);
+
+	Script teapot_script = ScriptComponentCreate(game, SCRIPT_ENUM_TeapotScript);
+	MLECSAttachComponentScript(&game->ecs, entity, &teapot_script);
 
 	//Script script = ScriptComponentCreate(game, SCRIPT_ENUM_PlayerScript);
 
@@ -195,9 +201,14 @@ void GameStart(Game* game)
 
 		glfwPollEvents();
 
+		MLECSReadyMarkedEntities(game);
+
 		ScriptSystemUpdate(game, scripts, delta_time);
 
+		MLECSDestroyMarkedEntities(game);
+
 		MLInputResetMarked(&game->input);
+
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

@@ -8,7 +8,11 @@
 #include "systems/RenderingSystem.h"
 #include "systems/PhysicsSystem.h"
 #include "Systems/ScriptSystem.h"
+#include "Systems/NameSystem.h"
 
+#include <DynArray.h>
+
+typedef struct Game Game;
 
 typedef struct ECS
 {
@@ -25,7 +29,14 @@ typedef struct ECS
 		RenderingSystem rendering;
 		PhysicsSystem physics;
 		ScriptSystem scripts;
+		NameSystem names;
 	} systems;
+
+	struct
+	{
+		DynArray marked_for_death; // DynArray<Entity_t>
+		DynArray marked_for_life; // DynArray<Entity_t>
+	} queues;
 } ECS;
 
 ECS MLECSCreate();
@@ -38,6 +49,9 @@ void MLECSSetEntitySignature(ECS* ecs, Entity_t entity, Signature_t signature);
 Signature_t MLECSGetEntitySignature(ECS* ecs, Entity_t entity);
 
 MLSystem* MLECSNewSystem(ECS* ecs, Signature_t signature);
+
+void MLECSDestroyMarkedEntities(Game* game);
+void MLECSReadyMarkedEntities(Game* game);
 
 #define COMPONENT(type) type* MLECSGetComponent##type(ECS* ecs, Entity_t entity);
 

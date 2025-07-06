@@ -1,5 +1,5 @@
-set(SCRIPTS
-    "player_script.c"
+file(GLOB SCRIPT_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
 )
 
-target_sources(MoonLander PRIVATE ${SCRIPTS})
+target_sources(MoonLander PRIVATE ${SCRIPT_SOURCES})
