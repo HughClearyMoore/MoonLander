@@ -197,6 +197,22 @@ void GameStart(Game* game)
 		MLECSAttachComponentParent(&game->ecs, elephant_child, &p);
 	}
 
+	Entity_t child_child = MLECSNewEntity(&game->ecs);
+
+	{
+		Mesh* cube_mesh = MLMeshManagerGetMesh(&game->mesh_manager, "cube");
+
+		Model child_model = { .mesh = cube_mesh, .program = program };
+
+		MLECSAttachComponentModel(&game->ecs, child_child, &child_model);
+
+		Transform trans = { .x = -1.0, .y = -1.0, .z = -1.0, .scale = 1.0 };
+
+		MLECSAttachComponentTransform(&game->ecs, child_child, &trans);
+
+		Parent p = ParentCreate(&game->ecs, elephant_child);
+		MLECSAttachComponentParent(&game->ecs, child_child, &p);
+	}
 
 	//
 	const double physics_frequency = 20;
