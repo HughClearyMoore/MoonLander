@@ -44,6 +44,36 @@ static void DrawModel(Model* model, Transform* transform, mat4 viewproj)
 	glDrawArrays(GL_TRIANGLES, 0, model->mesh->vertex_count);
 }
 
+static void DrawPhysicsModel(Model* model, Transform* transform, mat4 viewproj, double alpha)
+{
+	mat4 mat_model;
+	glm_mat4_identity(mat_model);
+
+	double interp_x = transform->prev_x + (transform->x - transform->prev_x) * alpha;
+	double interp_y = transform->prev_y + (transform->y - transform->prev_y) * alpha;
+	double interp_z = transform->prev_z + (transform->z - transform->prev_z) * alpha;
+
+	glm_translate(mat_model, (vec3) {
+		(float)interp_x,
+			(float)interp_y,
+			(float)interp_z
+	});
+
+	glm_rotate(mat_model, (float)transform->rx, (vec3) { 1.0, 0.0, 0.0 });
+	glm_rotate(mat_model, (float)transform->ry, (vec3) { 0.0, 1.0, 0.0 });
+	glm_rotate(mat_model, (float)transform->rz, (vec3) { 0.0, 0.0, 1.0 });
+
+	glm_scale_uni(mat_model, (float)transform->scale);
+
+	GLuint modelLoc = glGetUniformLocation(model->program->id, "uModel");
+	GLuint viewLoc = glGetUniformLocation(model->program->id, "uViewProj");
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (const GLfloat*)mat_model);
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (const GLfloat*)viewproj);
+
+	glDrawArrays(GL_TRIANGLES, 0, model->mesh->vertex_count);
+}
+
 static void RenderModel(Model* model, Transform* transform, mat4 viewProj)
 {
 	BindModel(model);
@@ -53,6 +83,16 @@ static void RenderModel(Model* model, Transform* transform, mat4 viewProj)
 
 	UnbindModel();
 }
+
+static void RenderPhysicsModel(Model* model, Transform* transform, mat4 viewProj, double alpha)
+{
+	BindModel(model);
+
+	DrawPhysicsModel(model, transform, viewProj, alpha);
+
+	UnbindModel();
+}
+
 
 RenderingSystem RenderingSystemCreate(Game* game)
 {
@@ -86,7 +126,7 @@ void RenderingSystemInitialise(RenderingSystem* rendering_system, Game* game)
 	//
 }
 
-void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double dt)
+void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double dt, double alpha)
 {
 
 	const size_t sz = DynArraySize(&rendering_system->system->entities);
@@ -140,9 +180,16 @@ void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double
 		
 		Transform* transform = MLECSGetComponentTransform(ecs, e);
 
-		//printf("Transform: x=%f, y=%f, z=%f\n", transform->x, transform->y, transform->z);
-		//printf("Model: ptr=%zu\n", (size_t)model);
+		if (MLECSGetComponentRigidBody(ecs, e))
+		{
+			RenderPhysicsModel(model, transform, viewproj, alpha);
+		}
+		else
+		{
+			RenderModel(model, transform, viewproj);
+		}
 
-		RenderModel(model, transform, viewproj);
+		//printf("Transform: x=%f, y=%f, z=%f\n", transform->x, transform->y, transform->z);
+		//printf("Model: ptr=%zu\n", (size_t)model);		
 	}
 }

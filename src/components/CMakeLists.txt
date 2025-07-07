@@ -1,6 +1,5 @@
-target_sources(MoonLander PRIVATE
-    "TransformComponent.c"
-    "ScriptComponent.c"
-    "ModelComponent.c"
-    "NameComponent.c"
+file(GLOB COMPONENT_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
 )
+
+target_sources(MoonLander PRIVATE ${COMPONENT_SOURCES})

@@ -86,7 +86,7 @@ UPDATE_FUNCTION(PlayerScript)
 	
 	vec3 delta_pos = { 0.0f, 0.0f, 0.0f };
 
-	const float speed = 1.0f * dt;
+	const float speed = 3.0f * dt;
 
 	if (input->keys[GLFW_KEY_S].is_pressed)
 	{
@@ -132,12 +132,12 @@ UPDATE_FUNCTION(PlayerScript)
 
 	if (input->keys[GLFW_KEY_Q].is_pressed)
 	{
-		t->ry -= speed;
+		t->ry += speed;
 	}
 
 	if (input->keys[GLFW_KEY_E].is_pressed)
 	{
-		t->ry += speed;
+		t->ry -= speed;
 	}
 
 	if (input->keys[GLFW_KEY_M].is_pressed)

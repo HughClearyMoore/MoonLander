@@ -45,7 +45,7 @@ UPDATE_FUNCTION(TeapotScript)
 		Entity_t new_entity = MLECSNewEntity(&game_ctx->ecs);
 
 		
-		vec3 direction = { MakeRandom(), MakeRandom(), MakeRandom() };
+		vec3 direction = { cos(MakeRandom() * 2 * 3.141592653), sin(MakeRandom() * 2 * 3.141592653), sin(MakeRandom() * 2 * 3.141592653)};
 		glm_normalize(direction);
 
 		double distance = 1 + MakeRandom() * 10.0;

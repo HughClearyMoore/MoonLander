@@ -37,6 +37,11 @@ static void LinkECSSystems(Game* game)
 	game->ecs.systems.names = NameSystemCreate(game);
 }
 
+static void UnlinkECSSystems(Game* game)
+{
+	PhysicsSystemDestroy(game);
+}
+
 Game GameCreate(const size_t width, const size_t height, const char* title)
 {
 	Game game;
@@ -185,35 +190,49 @@ void GameStart(Game* game)
 	Script teapot_script = ScriptComponentCreate(game, SCRIPT_ENUM_TeapotScript);
 	MLECSAttachComponentScript(&game->ecs, entity, &teapot_script);
 
-	//Script script = ScriptComponentCreate(game, SCRIPT_ENUM_PlayerScript);
+	{
+		dMass m;
+		dMassSetBox(&m, 1.0, 1.0, 1.0, 1.0);
+		RigidBody rb = RigidBodyCreate(&game->ecs, physics->world, &m);
 
-	//MLECSAttachComponentScript(&game->ecs, entity_2, &script);
+		MLECSAttachComponentRigidBody(&game->ecs, entity_2, &rb);
+	}
 
-	//script.script->ready(game, script.context); // this needs to be called by some sort of scene management		
+	const double physics_frequency = 20;
+	const double fixed_dt = 1 / physics_frequency;
 
 	double time = glfwGetTime();
+	double accumulator = 0.0;
+	
 
 	while (!glfwWindowShouldClose(game->window) && game->is_running)
 	{
 		double now = glfwGetTime();
-		double delta_time = now - time;
+		double frame_time = now - time;
 		time = now;
 
-		glfwPollEvents();
+		accumulator += frame_time;
 
+		glfwPollEvents();
 		MLECSReadyMarkedEntities(game);
 
-		ScriptSystemUpdate(game, scripts, delta_time);
+		ScriptSystemUpdate(game, scripts, frame_time);
 
+		if (accumulator >= fixed_dt)
+		{
+			PhysicsSystemUpdate(game, physics, fixed_dt);
+			accumulator -= fixed_dt;
+		}		
+
+		
 		MLECSDestroyMarkedEntities(game);
-
 		MLInputResetMarked(&game->input);
 
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		RenderingSystemUpdate(game, rendering, delta_time);
-
+		RenderingSystemUpdate(game, rendering, frame_time, accumulator / fixed_dt);
 		glfwSwapBuffers(game->window);
-	}	
+	}
+
+	UnlinkECSSystems(game);
 }

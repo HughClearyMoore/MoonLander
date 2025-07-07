@@ -13,4 +13,4 @@ typedef struct RenderingSystem
 RenderingSystem RenderingSystemCreate(Game* game);
 void RenderingSystemInitialise(RenderingSystem* rendering_system, Game* game);
 
-void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double dt);
+void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double dt, double alpha);

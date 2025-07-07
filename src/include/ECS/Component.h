@@ -4,6 +4,8 @@
 #include "components/ModelComponent.h"
 #include "components/ScriptComponent.h"
 #include "components/NameComponent.h"
+#include "components/RigidBodyComponent.h"
+#include "components/ColliderComponent.h"
 
 #define COMPONENT(type) ENUM_COMPONENT_##type,
 
