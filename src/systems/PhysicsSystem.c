@@ -48,15 +48,24 @@ void PhysicsSystemDestroy(Game* game)
 {
 	PhysicsSystem* physics_system = &game->ecs.systems.physics;
 
-	Entity_t* entities = physics_system->system->entities.data;
-	const size_t sz = DynArraySize(&physics_system->system->entities);
-
-	for (size_t i = 0; i < sz; ++i)
+	//Entity_t* entities = physics_system->system->entities.data;
+	//const size_t sz = DynArraySize(&physics_system->system->entities);
+	
+	Entity_t* entity = NULL;
+	while (DynArraySize(&physics_system->system->entities) > 0)
 	{
-		Entity_t e = entities[i];
-		MLECSRemoveComponentRigidBody(&game->ecs, e);
+		Entity_t* entity = DynArrayBack(&physics_system->system->entities);
+
+		MLECSRemoveComponentRigidBody(&game->ecs, *entity);	
 	}
 
+	/*
+	for (size_t i = 0; i < sz; ++i)
+	{
+		Entity_t e = entities[0];
+		MLECSRemoveComponentRigidBody(&game->ecs, e);
+	}
+	*/
 	dJointGroupDestroy(physics_system->joint_group);
 	dSpaceDestroy(physics_system->space);
 	dWorldDestroy(physics_system->world);
