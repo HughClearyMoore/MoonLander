@@ -86,12 +86,6 @@ void PhysicsSystemUpdate(Game* game, PhysicsSystem* physics_system, double dt)
 		transform->prev_x = transform->x;
 		transform->prev_y = transform->y;
 		transform->prev_z = transform->z;
-		
-		dBodySetPosition(rb->internal.body,
-			transform->x,
-			transform->y,
-			transform->z
-		);
 	}
 
 	dSpaceCollide(physics_system->space, physics_system, &CollisionCallback);
