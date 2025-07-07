@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include <cglm/cglm.h>
+
 #include "MLCore.h"
 #include "ECS/Component.h"
 
@@ -109,9 +111,25 @@ void PhysicsSystemUpdate(Game* game, PhysicsSystem* physics_system, double dt)
 
 		const dReal* pos = dBodyGetPosition(rb->internal.body);
 		
-		transform->x = pos[0];
-		transform->y = pos[1];
-		transform->z = pos[2];
+		vec3 world_pos = { (float)pos[0], (float)pos[1], (float)pos[2] };
+		Parent* parent = MLECSGetComponentParent(ecs, e);
+
+		if (parent)
+		{
+			EntityStatus parent_status = MLEntityManagerGetStatus(ecs->managers.entity_manager, parent->parent);
+
+			if (parent_status.alive && (parent_status.generation == parent->generation))
+			{
+				Transform parent_world = TransformGetWorldTransform(ecs, parent->parent);
+				vec3 parent_world_pos = { parent_world.x, parent_world.y, parent_world.z };
+
+				glm_vec3_sub(world_pos, parent_world_pos, world_pos);
+			}
+		}
+
+		transform->x = world_pos[0];
+		transform->y = world_pos[1];
+		transform->z = world_pos[2];
 	}
 
 	dJointGroupEmpty(physics_system->joint_group);

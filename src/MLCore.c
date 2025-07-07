@@ -178,6 +178,27 @@ void GameStart(Game* game)
 		MLECSAttachComponentRigidBody(&game->ecs, entity_2, &rb);
 	}
 
+	//
+	
+	Entity_t elephant_child = MLECSNewEntity(&game->ecs);
+	
+	{
+		Mesh* cube_mesh = MLMeshManagerGetMesh(&game->mesh_manager, "cube");
+
+		Model child_model = { .mesh = cube_mesh, .program = program };
+
+		MLECSAttachComponentModel(&game->ecs, elephant_child, &child_model);
+
+		Transform trans = { .x = -1.0, .y = 1.0, .z = -1.0, .scale = 1.0 };
+
+		MLECSAttachComponentTransform(&game->ecs, elephant_child, &trans);
+
+		Parent p = ParentCreate(&game->ecs, entity_2);
+		MLECSAttachComponentParent(&game->ecs, elephant_child, &p);
+	}
+
+
+	//
 	const double physics_frequency = 20;
 	const double fixed_dt = 1 / physics_frequency;
 

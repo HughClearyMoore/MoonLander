@@ -176,19 +176,20 @@ void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double
 		Entity_t e = entities[i];
 
 		Model* model = MLECSGetComponentModel(ecs, e);
-
 		
-		Transform* transform = MLECSGetComponentTransform(ecs, e);
-
+		Transform transform = TransformGetInterpolatedWorldTransform(ecs, e, alpha);
+		/*
 		if (MLECSGetComponentRigidBody(ecs, e))
 		{
-			RenderPhysicsModel(model, transform, viewproj, alpha);
+			RenderPhysicsModel(model, &transform, viewproj, alpha);
 		}
 		else
 		{
-			RenderModel(model, transform, viewproj);
+			RenderModel(model, &transform, viewproj);
 		}
+		*/
 
+		RenderModel(model, &transform, viewproj);
 		//printf("Transform: x=%f, y=%f, z=%f\n", transform->x, transform->y, transform->z);
 		//printf("Model: ptr=%zu\n", (size_t)model);		
 	}

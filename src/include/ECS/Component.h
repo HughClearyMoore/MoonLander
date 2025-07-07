@@ -6,6 +6,7 @@
 #include "components/NameComponent.h"
 #include "components/RigidBodyComponent.h"
 #include "components/ColliderComponent.h"
+#include "components/ParentComponent.h"
 
 #define COMPONENT(type) ENUM_COMPONENT_##type,
 

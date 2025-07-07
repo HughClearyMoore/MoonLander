@@ -119,11 +119,10 @@ void MLECSDestroyMarkedEntities(Game* game)
 
 		if (script && script->script && script->script->destroy)
 		{
-			if (script->script->destroy)
-			{
-				script->script->destroy(game, e, script->context);
-			}
+			script->script->destroy(game, e, script->context);			
 		}
+
+		game->ecs.managers.entity_manager->entity_statuses[e].alive = STI_FALSE;
 	}
 
 

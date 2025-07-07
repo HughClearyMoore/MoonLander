@@ -26,9 +26,11 @@ Entity_t MLEntityManagerNewEntity(EntityManager* manager)
 {
 	Entity_t new_id = { 0 };
 
+	STI_BOOL is_reusing = STI_FALSE;
+
 	if (DynArraySize(&manager->free_entities))
 	{
-		size_t size = DynArraySize(&manager->free_entities);
+		is_reusing = STI_TRUE;
 
 
 		new_id = *(Entity_t*)DynArrayBack(&manager->free_entities);
@@ -42,6 +44,11 @@ Entity_t MLEntityManagerNewEntity(EntityManager* manager)
 	assert(new_id < MAX_ENTITIES);
 
 	++manager->entity_count;
+	EntityStatus* current_status = &manager->entity_statuses[new_id];
+	
+	current_status->alive = STI_TRUE;
+
+	if(is_reusing) ++current_status->generation;	
 
 	return new_id;
 }
@@ -70,4 +77,9 @@ Signature_t MLEntityManagerGetSignature(EntityManager* manager, Entity_t entity)
 	assert(entity < MAX_ENTITIES);
 
 	return manager->signatures[entity];
+}
+
+EntityStatus MLEntityManagerGetStatus(EntityManager* manager, Entity_t entity)
+{
+	return manager->entity_statuses[entity];
 }

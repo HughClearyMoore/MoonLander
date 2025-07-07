@@ -3,8 +3,15 @@
 #include <stddef.h>
 
 #include <DynArray.h>
+#include <Utility.h>
 
 #include "ECSConfig.h"
+
+typedef struct EntityStatus
+{
+	STI_BOOL alive;
+	size_t generation;
+} EntityStatus;
 
 typedef struct EntityManager
 {
@@ -14,6 +21,8 @@ typedef struct EntityManager
 	DynArray free_entities;
 
 	Signature_t signatures[MAX_ENTITIES];
+	EntityStatus entity_statuses[MAX_ENTITIES];
+
 } EntityManager;
 
 
@@ -24,5 +33,7 @@ void MLEntityManagerDestroyEntity(EntityManager* manager, Entity_t entity);
 
 void MLEntityManagerSetSignature(EntityManager* manager, Entity_t entity, Signature_t signature);
 Signature_t MLEntityManagerGetSignature(EntityManager* manager, Entity_t entity);
+
+EntityStatus MLEntityManagerGetStatus(EntityManager* manager, Entity_t entity);
 
 void MLEntityManagerDestroy(EntityManager* manager);
