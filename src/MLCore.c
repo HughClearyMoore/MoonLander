@@ -131,15 +131,19 @@ void GameStart(Game* game)
 	RenderingSystem* rendering = &game->ecs.systems.rendering;
 	ScriptSystem* scripts = &game->ecs.systems.scripts;
 
-
-	Transform t = { .x = 0.5f, .y = 0.5f, .z = 0.1f, .scale = 1.0f };
+	Transform t = TransformIdentity();
+	t.position.x = 0.5f;
+	t.position.y = 0.5f;
+	t.position.z = 0.1f;
+	
+	
 
 	Entity_t entity = MLECSNewEntity(&game->ecs);
 	Entity_t entity_2 = MLECSNewEntity(&game->ecs);
 
 	MLECSAttachComponentTransform(&game->ecs, entity, &t);
 
-	t.x = 0.2;
+	t.position.x = 3;
 
 	MLECSAttachComponentTransform(&game->ecs, entity_2, &t);
 
@@ -159,8 +163,11 @@ void GameStart(Game* game)
 
 	MLECSRemoveComponentTransform(&game->ecs, entity);
 
-	t.x = 0.1;
-	t.scale = 0.5;
+	t.position.x = 0.1;
+
+	t.scale.scale_x = 0.5;
+	t.scale.scale_y = 0.5;
+	t.scale.scale_z = 0.5;
 
 	MLECSAttachComponentTransform(&game->ecs, entity, &t);
 
@@ -173,7 +180,7 @@ void GameStart(Game* game)
 	{
 		dMass m;
 		dMassSetBox(&m, 1.0, 1.0, 1.0, 1.0);
-		RigidBody rb = RigidBodyCreate(&game->ecs, physics->world, &m);
+		RigidBody rb = RigidBodyCreate(&game->ecs, MLECSGetComponentTransform(&game->ecs, entity_2), physics->world, &m);
 
 		MLECSAttachComponentRigidBody(&game->ecs, entity_2, &rb);
 	}
@@ -189,7 +196,11 @@ void GameStart(Game* game)
 
 		MLECSAttachComponentModel(&game->ecs, elephant_child, &child_model);
 
-		Transform trans = { .x = -1.0, .y = 1.0, .z = -1.0, .scale = 1.0 };
+		Transform trans = TransformIdentity();
+		trans.position.x = -1.0;
+		trans.position.y = 1.0;
+		trans.position.z = -1.0;
+		
 
 		MLECSAttachComponentTransform(&game->ecs, elephant_child, &trans);
 
@@ -206,7 +217,10 @@ void GameStart(Game* game)
 
 		MLECSAttachComponentModel(&game->ecs, child_child, &child_model);
 
-		Transform trans = { .x = -1.0, .y = -1.0, .z = -1.0, .scale = 1.0 };
+		Transform trans = TransformIdentity();
+		trans.position.x = -1.0;
+		trans.position.y = -1.0;
+		trans.position.z = -1.0;
 
 		MLECSAttachComponentTransform(&game->ecs, child_child, &trans);
 

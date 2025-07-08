@@ -2,14 +2,19 @@
 
 #include "MLCore.h"
 
-RigidBody RigidBodyCreate(ECS* ecs, dWorldID world, dMass* mass)
+RigidBody RigidBodyCreate(ECS* ecs, Transform* transform, dWorldID world, dMass* mass)
 {
 	RigidBody body = { 0 };
 
 	body.internal.world = world;
 
-	body.internal.body = dBodyCreate(world);
+	body.internal.body = dBodyCreate(world);	
+
 	dBodySetMass(body.internal.body, mass);
+	dBodySetPosition(body.internal.body,
+		transform->position.x,
+		transform->position.y,
+		transform->position.z);
 
 	body.mass = mass->mass;
 

@@ -72,17 +72,27 @@ UPDATE_FUNCTION(PlayerScript)
 
 	Transform* t = MLECSGetComponentTransform(&game_ctx->ecs, entity);
 
-	vec3 forward_vec = {
-	cos(t->rx) * sin(t->ry),
-	sin(t->rx),
-	cos(t->rx) * cos(t->ry) };
-	glm_normalize(forward_vec);
+	versor player_rot;
+	TransformGetVersor(t, player_rot);
 
 	vec3 world_up = { 0.0f, 1.0f, 0.0f };
-	vec3 right_vec;
+	vec3 forward = { 0.0f, 0.0f, -1.0f };
+	vec3 right = { 1.0f, 0.0f, 0.0f };
 
-	glm_vec3_cross(world_up, forward_vec, right_vec);
-	glm_normalize(right_vec);
+	vec3 forward_vec = { 0.0f, 0.0f, -1.0f };
+	//glm_quat_rotatev(player_rot, forward, forward_vec);
+	//glm_normalize(forward_vec);
+
+	vec3 right_vec = { 1.0f, 0.0f, 0.0f };
+	//glm_quat_rotatev(player_rot, right, right_vec);
+	//glm_normalize(right_vec);
+
+	vec3 forward_move = { 0.0f, 0.0f, -1.0f };
+	glm_quat_rotatev(player_rot, forward_move, forward_move);
+
+	vec3 right_move = { 1.0f, 0.0f, 0.0f };
+	glm_quat_rotatev(player_rot, right_move, right_move);
+
 	
 	vec3 delta_pos = { 0.0f, 0.0f, 0.0f };
 
@@ -91,28 +101,28 @@ UPDATE_FUNCTION(PlayerScript)
 	if (input->keys[GLFW_KEY_S].is_pressed)
 	{
 		vec3 delta;
-		glm_vec3_scale(forward_vec, -1.0f * speed, delta);
+		glm_vec3_scale(forward_move, -1.0f * speed, delta);
 		glm_vec3_add(delta_pos, delta, delta_pos);		
 	}
 
 	if (input->keys[GLFW_KEY_W].is_pressed)
 	{
 		vec3 delta;
-		glm_vec3_scale(forward_vec, 1.0f * speed, delta);
+		glm_vec3_scale(forward_move, 1.0f * speed, delta);
 		glm_vec3_add(delta_pos, delta, delta_pos);
 	}
 
 	if (input->keys[GLFW_KEY_A].is_pressed)
 	{
 		vec3 delta;
-		glm_vec3_scale(right_vec, 1.0f * speed, delta);
+		glm_vec3_scale(right_move, -1.0f * speed, delta);
 		glm_vec3_add(delta_pos, delta, delta_pos);
 	}
 
 	if (input->keys[GLFW_KEY_D].is_pressed)
 	{
 		vec3 delta;
-		glm_vec3_scale(right_vec, -1.0f * speed, delta);
+		glm_vec3_scale(right_move, 1.0f * speed, delta);
 		glm_vec3_add(delta_pos, delta, delta_pos);
 	}
 
@@ -132,35 +142,52 @@ UPDATE_FUNCTION(PlayerScript)
 
 	if (input->keys[GLFW_KEY_Q].is_pressed)
 	{
-		t->ry += speed;
+		float angle = speed;
+		//vec3 axis = { 0.0f, 1.0f, 0.0f };
+		TransformRotate(t, world_up, angle);
 	}
 
 	if (input->keys[GLFW_KEY_E].is_pressed)
 	{
-		t->ry -= speed;
+		float angle = -speed;
+		//vec3 axis = { 0.0f, 1.0f, 0.0f };
+		TransformRotate(t, world_up, angle);		
 	}
 
-	if (input->keys[GLFW_KEY_M].is_pressed)
+	if (input->keys[GLFW_KEY_P].is_pressed)
 	{
-		t->scale += speed;
+		float angle = speed;		
+		TransformRotate(t, right_vec, angle);
 	}
 
-	if (input->keys[GLFW_KEY_N].is_pressed)
+	if (input->keys[GLFW_KEY_L].is_pressed)
 	{
-		t->scale -= speed;
+		float angle = -speed;		
+		TransformRotate(t, right_vec, angle);
+	}	
+
+	if (input->keys[GLFW_KEY_N].just_pressed)
+	{
+		printf("right vector: %.2f, %.2f, %.2f\n",
+			right_vec[0], right_vec[1], right_vec[2]);
+		versor rot;
+		TransformGetVersor(t, rot);
+
+		printf("versor: %.2f, %.2f, %.2f, %.2f\n",
+			t->rotation.x, t->rotation.y, t->rotation.z, t->rotation.w);
 	}
 
 	vec3 pos = {
-		(float)t->x,
-		(float)t->y,
-		(float)t->z
+		(float)t->position.x,
+		(float)t->position.y,
+		(float)t->position.z
 	};
 
 	glm_vec3_add(pos, delta_pos, pos);
 
-	t->x = pos[0];
-	t->y = pos[1];
-	t->z = pos[2];
+	t->position.x = pos[0];
+	t->position.y = pos[1];
+	t->position.z = pos[2];
 
 	return;
 }

@@ -32,13 +32,21 @@ UPDATE_FUNCTION(TeapotScript)
 
 	Transform* t = MLECSGetComponentTransform(&game_ctx->ecs, entity);
 
-	t->scale = teapot->life_force / 100.0;
-	t->scale = t->scale < 0.0 ? 0.0 : t->scale;
+	double scale = teapot->life_force / 100.0;
+	scale = scale < 0.0 ? 0.0 : scale;
+
+	TransformUniformScale(t, scale);
 	
-	if (t->scale == 0.0)
+	if (scale <= 0.0)
 	{
 		MLECSDestroyEntity(&game_ctx->ecs, entity);
 	}
+
+
+	vec3 delta_rot_axis = { 1.0, 0.0, 1.0 };
+	glm_normalize(delta_rot_axis);
+	//TransformRotate(t, delta_rot_axis, dt);
+
 
 	if (input->keys[GLFW_KEY_LEFT_SHIFT].just_pressed)
 	{
@@ -55,13 +63,13 @@ UPDATE_FUNCTION(TeapotScript)
 		vec3 final_pos = { 0.0, 0.0, 0 };
 		glm_vec3_add(final_pos, direction, final_pos);
 
-		Transform trans =
-		{
-			.x = final_pos[0],
-			.y = final_pos[1],
-			.z = final_pos[2],
-			.scale = MakeRandom() * 3 + 1.0
-		};
+		Transform trans = TransformIdentity();
+
+		trans.position.x = final_pos[0];
+		trans.position.y = final_pos[1];
+		trans.position.z = final_pos[2];
+
+		TransformUniformScale(&trans, MakeRandom() * 3 + 1.0);		
 
 		MLECSAttachComponentTransform(&game_ctx->ecs, new_entity, &trans);
 

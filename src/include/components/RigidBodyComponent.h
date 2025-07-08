@@ -20,4 +20,4 @@ typedef struct RigidBody
 	double mass;
 } RigidBody;
 
-RigidBody RigidBodyCreate(ECS* ecs, dWorldID world, dMass* mass);
+RigidBody RigidBodyCreate(ECS* ecs, Transform* transform, dWorldID world, dMass* mass);

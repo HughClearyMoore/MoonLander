@@ -94,9 +94,14 @@ void PhysicsSystemUpdate(Game* game, PhysicsSystem* physics_system, double dt)
 		Transform* transform = MLECSGetComponentTransform(ecs, e);
 		RigidBody* rb = MLECSGetComponentRigidBody(ecs, e);
 
-		transform->prev_x = transform->x;
-		transform->prev_y = transform->y;
-		transform->prev_z = transform->z;
+		transform->previous.position.prev_x = transform->position.x;
+		transform->previous.position.prev_y = transform->position.y;
+		transform->previous.position.prev_z = transform->position.z;
+
+		transform->previous.rotation.prev_x = transform->rotation.x;
+		transform->previous.rotation.prev_y = transform->rotation.y;
+		transform->previous.rotation.prev_z = transform->rotation.z;
+		transform->previous.rotation.prev_w = transform->rotation.w;		
 	}
 
 	dSpaceCollide(physics_system->space, physics_system, &CollisionCallback);
@@ -110,8 +115,11 @@ void PhysicsSystemUpdate(Game* game, PhysicsSystem* physics_system, double dt)
 		RigidBody* rb = MLECSGetComponentRigidBody(ecs, e);
 
 		const dReal* pos = dBodyGetPosition(rb->internal.body);
+		const dReal* rot = dBodyGetQuaternion(rb->internal.body);
 		
 		vec3 world_pos = { (float)pos[0], (float)pos[1], (float)pos[2] };
+		versor world_rot = { (float)rot[1], (float)rot[2], (float)rot[3], (float)rot[0] };
+
 		Parent* parent = MLECSGetComponentParent(ecs, e);
 
 		if (parent)
@@ -120,16 +128,57 @@ void PhysicsSystemUpdate(Game* game, PhysicsSystem* physics_system, double dt)
 
 			if (parent_status.alive && (parent_status.generation == parent->generation))
 			{
-				Transform parent_world = TransformGetWorldTransform(ecs, parent->parent);
-				vec3 parent_world_pos = { parent_world.x, parent_world.y, parent_world.z };
+				mat4 parent_world;
+				TransformGetWorldTransform(ecs, parent->parent, parent_world);
+				
+				vec3 parent_world_pos = { parent_world[3][0], parent_world[3][1], parent_world[3][2]};
 
 				glm_vec3_sub(world_pos, parent_world_pos, world_pos);
+
+				versor parent_rot;
+				glm_mat4_quat(parent_world, parent_rot);
+
+				versor parent_rot_inv;
+				glm_quat_conjugate(parent_rot, parent_rot_inv);
+
+
+				versor local_rot;
+				glm_quat_mul(parent_rot_inv, world_rot, local_rot);
+
+				transform->position.x = world_pos[0];
+				transform->position.y = world_pos[1];
+				transform->position.z = world_pos[2];
+
+				transform->rotation.x = local_rot[0];
+				transform->rotation.y = local_rot[1];
+				transform->rotation.z = local_rot[2];
+				transform->rotation.w = local_rot[3];
+
+			}
+			else
+			{
+				transform->position.x = world_pos[0];
+				transform->position.y = world_pos[1];
+				transform->position.z = world_pos[2];
+
+				transform->rotation.x = world_rot[0];
+				transform->rotation.y = world_rot[1];
+				transform->rotation.z = world_rot[2];
+				transform->rotation.w = world_rot[3];
 			}
 		}
+		else
+		{
 
-		transform->x = world_pos[0];
-		transform->y = world_pos[1];
-		transform->z = world_pos[2];
+			transform->position.x = world_pos[0];
+			transform->position.y = world_pos[1];
+			transform->position.z = world_pos[2];
+
+			transform->rotation.x = world_rot[0];
+			transform->rotation.y = world_rot[1];
+			transform->rotation.z = world_rot[2];
+			transform->rotation.w = world_rot[3];
+		}
 	}
 
 	dJointGroupEmpty(physics_system->joint_group);
