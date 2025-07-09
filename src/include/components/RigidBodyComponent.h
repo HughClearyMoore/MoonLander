@@ -4,6 +4,8 @@
 
 #include <DynArray.h>
 
+#include "ECS/ECSConfig.h"
+
 typedef struct ECS ECS;
 
 typedef struct RigidBody
@@ -21,3 +23,4 @@ typedef struct RigidBody
 } RigidBody;
 
 RigidBody RigidBodyCreate(ECS* ecs, Transform* transform, dWorldID world, dMass* mass);
+void RigidBodyAddTorque(ECS* ecs, Entity_t entity, vec3 axis, float torque_nm);

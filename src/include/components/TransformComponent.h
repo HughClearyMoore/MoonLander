@@ -46,4 +46,6 @@ void TransformUniformScale(Transform* transform, double scale);
 void TransformGetVersor(Transform* transform, versor out);
 void TransformSetVersor(Transform* transform, versor rot);
 
+void TransformGetWorldVersor(ECS* ecs, Entity_t entity, versor out);
+
 void TransformRotate(Transform* transform, vec3 axis, float angle);

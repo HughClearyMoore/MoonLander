@@ -226,3 +226,34 @@ void TransformRotate(Transform* transform, vec3 axis, float angle)
 
 	TransformSetVersor(transform, result);
 }
+
+void TransformGetWorldVersor(ECS* ecs, Entity_t entity, versor out)
+{
+	Transform* t = MLECSGetComponentTransform(ecs, entity);
+
+	if (t == NULL)
+	{
+		glm_quat_copy((versor) { 0.0f, 0.0f, 0.0f, 1.0f }, out);
+	}
+
+	Parent* p = MLECSGetComponentParent(ecs, entity);
+
+	if (p)
+	{
+		EntityStatus status = MLEntityManagerGetStatus(&ecs->managers.entity_manager, p->parent);
+
+		if (status.alive && (status.generation == p->generation))
+		{
+			versor parentVersor;
+			TransformGetWorldVersor(ecs, p->parent, parentVersor);
+
+			versor localVersor;
+			TransformGetVersor(t, localVersor);
+
+			glm_quat_mul(parentVersor, localVersor, out);
+			return;
+		}	
+	}
+	
+	TransformGetVersor(t, out);
+}

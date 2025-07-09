@@ -1,5 +1,7 @@
 #include "ECS/component.h"
 
+#include <cglm/cglm.h>
+
 #include "MLCore.h"
 
 RigidBody RigidBodyCreate(ECS* ecs, Transform* transform, dWorldID world, dMass* mass)
@@ -46,4 +48,25 @@ COMPONENT_DESTROY(RigidBody)
 	dBodyDestroy(rb->internal.body); // no body told me but this removes attached geoms for you // I'll probably untrack them at some point
 
 	DynArrayDestroy(&rb->internal.attached_geoms);
+}
+
+void RigidBodyAddTorque(ECS* ecs, Entity_t entity, vec3 axis, float torque_nm)
+{
+	RigidBody* rb = MLECSGetComponentRigidBody(ecs, entity);
+
+	if (rb == NULL) return;
+
+	versor world_rot;
+	TransformGetWorldVersor(ecs, entity, world_rot);
+	
+	vec3 torque_direction;
+	glm_quat_rotatev(world_rot, axis, torque_direction);
+
+	glm_vec3_normalize(torque_direction);
+	glm_vec3_scale(torque_direction, torque_nm, torque_direction);
+
+	dBodyAddTorque(rb->internal.body,
+		torque_direction[0],
+		torque_direction[1],
+		torque_direction[2]);
 }
