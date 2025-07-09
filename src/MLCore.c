@@ -240,7 +240,13 @@ void GameStart(Game* game)
 		MLECSAttachComponentParent(&game->ecs, child_child, &p);
 	}
 
-	
+	{
+		Parent p = ParentCreate(&game->ecs, entity_2);
+
+		Entity_t camera = game->ecs.systems.rendering.camera;
+		MLECSAttachComponentParent(&game->ecs, camera, &p);
+
+	}
 
 	//
 	const double physics_frequency = 20;

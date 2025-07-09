@@ -89,7 +89,7 @@ void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double
 
 	mat4 proj;
 	mat4 view;
-	mat4 viewproj;
+	
 
 	// ah
 	const size_t width = game->window_width;
@@ -99,11 +99,24 @@ void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double
 
 	glm_perspective(glm_rad(60.0f), aspect, 0.1f, 100.0f, proj);
 
-	Transform* camera_transform = MLECSGetComponentTransform(ecs, rendering_system->camera);
+	Entity_t camera = rendering_system->camera;
+
+	mat4 camera_transform;
+	TransformGetInterpolatedWorldTransform(ecs, camera, alpha, camera_transform);
+	
+	vec3 camera_world_pos;
+	camera_world_pos[0] = camera_transform[3][0];
+	camera_world_pos[1] = camera_transform[3][1];
+	camera_world_pos[2] = camera_transform[3][2];	
+	camera_world_pos[2] = camera_transform[3][2];	
 
 	versor camera_rot;
-	TransformGetVersor(camera_transform, camera_rot);	
+	/*
+	TransformGetWorldVersor(ecs, camera, camera_rot);
+	glm_quat_normalize(camera_rot);
+	*/
 
+	glm_mat4_quat(camera_transform, camera_rot);
 	glm_quat_normalize(camera_rot);
 
 	vec3 up = { 0.0f, 1.0f, 0.0f };
@@ -116,18 +129,14 @@ void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double
 	vec3 up_vec;
 	glm_quat_rotatev(camera_rot, up, up_vec);
 	glm_normalize(up_vec);
-
-	vec3 camera_pos = { (float)camera_transform->position.x, (float)camera_transform->position.y, (float)camera_transform->position.z };
 	
 	vec3 target;
-	glm_vec3_add(forward_vec, camera_pos, target);
+	glm_vec3_add(forward_vec, camera_world_pos, target);
 
-	glm_lookat(camera_pos, 
+	glm_lookat(camera_world_pos, 
 		target,
 		up_vec,
 		view);
-
-	glm_mat4_mul(proj, view, viewproj);
 
 	//
 
