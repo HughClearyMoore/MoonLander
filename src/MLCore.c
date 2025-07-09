@@ -192,7 +192,11 @@ void GameStart(Game* game)
 		dMassSetBox(&m, 1.0, 1.0, 1.0, 1.0);
 		RigidBody rb = RigidBodyCreate(&game->ecs, MLECSGetComponentTransform(&game->ecs, entity_2), physics->world, &m);
 
+		dBodyAddTorque(rb.internal.body, 0.0, 1.0, 0.0);
+
 		MLECSAttachComponentRigidBody(&game->ecs, entity_2, &rb);
+
+
 	}
 
 	//
@@ -237,6 +241,8 @@ void GameStart(Game* game)
 		Parent p = ParentCreate(&game->ecs, elephant_child);
 		MLECSAttachComponentParent(&game->ecs, child_child, &p);
 	}
+
+	
 
 	//
 	const double physics_frequency = 20;
