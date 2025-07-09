@@ -18,32 +18,28 @@ static void UnbindModel()
 	glBindVertexArray(0);
 }
 
-static void DrawModel(Model* model, mat4 transform, mat4 viewproj)
+static void DrawModel(Model* model, mat4 transform, mat4 view, mat4 proj)
 {
-	GLuint modelLoc = glGetUniformLocation(model->program->id, "uModel");
-	GLuint viewLoc = glGetUniformLocation(model->program->id, "uViewProj");
+	
+	glUniformMatrix4fv(model->uniform_locations.model_loc, 1, GL_FALSE,
+		(const GLfloat*)transform);
 
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (const GLfloat*)transform);
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (const GLfloat*)viewproj);
+	glUniformMatrix4fv(model->uniform_locations.view_loc, 1, GL_FALSE,
+		(const GLfloat*)view);
+
+	glUniformMatrix4fv(model->uniform_locations.proj_loc, 1, GL_FALSE,
+		(const GLfloat*)proj);
+
+	
 
 	glDrawArrays(GL_TRIANGLES, 0, model->mesh->vertex_count);
 }
 
-static void RenderModel(Model* model, mat4 transform, mat4 viewProj)
+static void RenderModel(Model* model, mat4 transform, mat4 view, mat4 proj)
 {
 	BindModel(model);
 
-	DrawModel(model, transform, viewProj);
-
-
-	UnbindModel();
-}
-
-static void RenderPhysicsModel(Model* model, Transform* transform, mat4 viewProj, double alpha)
-{
-	BindModel(model);
-
-	DrawPhysicsModel(model, transform, viewProj, alpha);
+	DrawModel(model, transform, view, proj);
 
 	UnbindModel();
 }
@@ -145,6 +141,6 @@ void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double
 		mat4 interp_transform;
 		TransformGetInterpolatedWorldTransform(ecs, e, alpha, interp_transform);
 
-		RenderModel(model, interp_transform, viewproj);
+		RenderModel(model, interp_transform, view, proj);
 	}
 }

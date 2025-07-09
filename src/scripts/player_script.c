@@ -154,6 +154,20 @@ UPDATE_FUNCTION(PlayerScript)
 		TransformRotate(t, world_up, angle);		
 	}
 
+	if (input->keys[GLFW_KEY_R].is_pressed)
+	{
+		float angle = speed;
+		//vec3 axis = { 0.0f, 1.0f, 0.0f };
+		TransformRotate(t, forward, angle);
+	}
+
+	if (input->keys[GLFW_KEY_F].is_pressed)
+	{
+		float angle = -speed;
+		//vec3 axis = { 0.0f, 1.0f, 0.0f };
+		TransformRotate(t, forward, angle);
+	}
+
 	if (input->keys[GLFW_KEY_P].is_pressed)
 	{
 		float angle = speed;		

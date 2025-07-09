@@ -144,6 +144,11 @@ void GameStart(Game* game)
 	MLECSAttachComponentTransform(&game->ecs, entity, &t);
 
 	t.position.x = 3;
+	{
+		vec3 axis = { 1.0f, 0.0f, 0.0f };
+		TransformRotate(&t, axis, 45.0f);
+	}
+	
 
 	MLECSAttachComponentTransform(&game->ecs, entity_2, &t);
 
@@ -155,13 +160,18 @@ void GameStart(Game* game)
 
 	Transform* t_ptr = MLECSGetComponentTransform(&game->ecs, entity);
 
-	Model mod_component = { .mesh = entry, .program = program };
-	Model teapot_model = { .mesh = teapot, .program = program };
+	Model mod_component = CreateModel(entry, program);
+	Model teapot_model = CreateModel(teapot, program);
 
 	MLECSAttachComponentModel(&game->ecs, entity_2, &mod_component);
 	MLECSAttachComponentModel(&game->ecs, entity, &teapot_model);
 
 	MLECSRemoveComponentTransform(&game->ecs, entity);
+
+	t.rotation.x = 0.0;
+	t.rotation.y = 0.0;
+	t.rotation.z = 0.0;
+	t.rotation.w = 1.0;
 
 	t.position.x = 0.1;
 
@@ -192,7 +202,7 @@ void GameStart(Game* game)
 	{
 		Mesh* cube_mesh = MLMeshManagerGetMesh(&game->mesh_manager, "cube");
 
-		Model child_model = { .mesh = cube_mesh, .program = program };
+		Model child_model = CreateModel(cube_mesh, program);		
 
 		MLECSAttachComponentModel(&game->ecs, elephant_child, &child_model);
 
@@ -213,7 +223,7 @@ void GameStart(Game* game)
 	{
 		Mesh* cube_mesh = MLMeshManagerGetMesh(&game->mesh_manager, "cube");
 
-		Model child_model = { .mesh = cube_mesh, .program = program };
+		Model child_model = CreateModel(cube_mesh, program);		
 
 		MLECSAttachComponentModel(&game->ecs, child_child, &child_model);
 
@@ -235,6 +245,8 @@ void GameStart(Game* game)
 	double time = glfwGetTime();
 	double accumulator = 0.0;
 	
+
+	//PhysicsSystemUpdate(game, physics, fixed_dt);
 
 	while (!glfwWindowShouldClose(game->window) && game->is_running)
 	{

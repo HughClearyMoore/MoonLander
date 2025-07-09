@@ -16,6 +16,16 @@ RigidBody RigidBodyCreate(ECS* ecs, Transform* transform, dWorldID world, dMass*
 		transform->position.y,
 		transform->position.z);
 
+	dQuaternion rot = {
+		transform->rotation.w,
+		transform->rotation.x,
+		transform->rotation.y,
+		transform->rotation.z
+	};
+
+	dBodySetQuaternion(body.internal.body,
+		rot);
+
 	body.mass = mass->mass;
 
 	body.internal.attached_geoms = DynArrayCreate(sizeof(dGeomID), 0, NULL);	
