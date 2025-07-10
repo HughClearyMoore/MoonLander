@@ -8,24 +8,6 @@
 #include "MLCore.h"
 #include "ECS/Component.h"
 
-
-/*
-	dInitODE2(0);
-
-	dWorldID world = dWorldCreate();
-
-	dBodyID body = dBodyCreate(world);
-	dBodySetPosition(body, 0.0, 1.0, 0.0);
-
-	const dReal* pos = dBodyGetPosition(body);
-	printf("Body position: x=%.2f, y=%.2f, z=%.2f\n", pos[0], pos[1], pos[2]);
-
-	dBodyDestroy(body);
-	dWorldDestroy(world);
-	dCloseODE();
-
-*/
-
 PhysicsSystem PhysicsSystemCreate(Game* game)
 {
 	PhysicsSystem system = { 0 };

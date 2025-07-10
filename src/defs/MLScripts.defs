@@ -1,3 +1,55 @@
+/*
+This file allows you to define scripts. The structure of a script is as follows:
+SCRIPT(name)
+SCRIPT_HAS_*(name)
+...
+SCRIPT_END
+
+The following functions will be define automatically
+
+A ready function that is called when an entity is spawned in the world and in this function
+it is safe to reference other objects in the world.
+
+A create function that is called when a script component is first attached. This function mainly
+exists for setting up the script context. Be very cautious about what is done here as no guarantees
+can be made about the state of the game world.
+
+A destroy function that is called just before the entity is destroyed (not the script component). This
+function is mostly safely to interact with the game world as all destroy functions are called before
+any destruction.
+
+All functions have the same first 3 arguments:
+	Game* game_ctx: This is used for actually doing game related logic such as spawning new entities,
+					reading input, attaching components, etc.
+
+	Entity_t entity: This is the entity that the script is being called on.
+
+	ScriptContext ctx: This contains the data currently held via the script. It is used for holding custom
+						data.
+
+Extra functions:
+
+The following are functions that can be added via SCRIPT_HAS_*(name):
+
+	SCRIPT_HAS_UPDATE(name),
+		Arguments:
+			double dt: This is the time the last frame took.
+			
+		This function is called every frame and is the main function you will want to be using.
+
+	COLLISION HANDLING:		
+		Collisions will only work if you attach both a rigid body and a collider component.
+
+		All collision functions have the same arguments:
+			Entity_t other: The other entity you are colliding with.
+
+		SCRIPT_HAS_COLLISION_ENTER(name),
+			This function is called when the entity first collides with another object.
+		SCRIPT_HAS_COLLISION(name),
+			This function is called whilst an entity is colliding with another object.
+		SCRIPT_HAS_COLLISION_EXIT(name),
+			This function is called when an entity stops colliding with another object.
+*/
 SCRIPT(PlayerScript)
 SCRIPT_HAS_UPDATE(PlayerScript)
 SCRIPT_END
