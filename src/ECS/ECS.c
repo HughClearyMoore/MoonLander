@@ -158,3 +158,8 @@ void MLECSReadyMarkedEntities(Game* game)
 		DynArrayPopBack(marked);
 	}
 }
+
+PhysicsSystem* MLECSPhysicsSystem(Game* game)
+{
+	return &game->ecs.systems.physics;
+}

@@ -8,6 +8,8 @@
 #include "MLCore.h"
 #include "ECS/Component.h"
 
+#define COLLISION_MAX_CONTACTS 8
+
 PhysicsSystem PhysicsSystemCreate(Game* game)
 {
 	PhysicsSystem system = { 0 };
@@ -17,13 +19,17 @@ PhysicsSystem PhysicsSystemCreate(Game* game)
 
 	system.system = MLECSNewSystem(&game->ecs, signature);
 
+	signature = 0;
+	signature |= 1 << ENUM_COMPONENT_Collider;
+	system.collision_system = MLECSNewSystem(&game->ecs, signature);
+
 	dInitODE2(0);
 
 	system.joint_group = dJointGroupCreate(0);
 	system.world = dWorldCreate();
 	system.space = dSimpleSpaceCreate(0);
 
-	dWorldSetGravity(system.world, 0.0, -0.1, 0.0);
+	dWorldSetGravity(system.world, 0.0, -1.625, 0.0);
 
 	return system;
 }
@@ -34,22 +40,22 @@ void PhysicsSystemDestroy(Game* game)
 
 	//Entity_t* entities = physics_system->system->entities.data;
 	//const size_t sz = DynArraySize(&physics_system->system->entities);
+
 	
-	Entity_t* entity = NULL;
+	while (DynArraySize(&physics_system->collision_system->entities) > 0)
+	{
+		Entity_t* entity = DynArrayBack(&physics_system->collision_system->entities);
+
+		MLECSRemoveComponentCollider(&game->ecs, *entity);
+	}
+
 	while (DynArraySize(&physics_system->system->entities) > 0)
 	{
 		Entity_t* entity = DynArrayBack(&physics_system->system->entities);
-
+		
 		MLECSRemoveComponentRigidBody(&game->ecs, *entity);	
 	}
 
-	/*
-	for (size_t i = 0; i < sz; ++i)
-	{
-		Entity_t e = entities[0];
-		MLECSRemoveComponentRigidBody(&game->ecs, e);
-	}
-	*/
 	dJointGroupDestroy(physics_system->joint_group);
 	dSpaceDestroy(physics_system->space);
 	dWorldDestroy(physics_system->world);
@@ -57,8 +63,44 @@ void PhysicsSystemDestroy(Game* game)
 }
 
 static void CollisionCallback(void* data, dGeomID o1, dGeomID o2)
-{
-	printf("COLLISION!\n");
+{	
+	dContact contacts[COLLISION_MAX_CONTACTS];
+
+	Game* game = (Game*)data;
+
+	ColliderData* o1_data = dGeomGetData(o1);
+	ColliderData* o2_data = dGeomGetData(o2);
+
+	Collider* o1_collider = MLECSGetComponentCollider(GameECS(game), o1_data->entity);
+	Collider* o2_collider = MLECSGetComponentCollider(GameECS(game), o2_data->entity);
+
+	if (!(o1_collider && o2_collider))
+	{
+		assert(0 && "Collider missing");
+	}	
+
+	size_t num_contacts = dCollide(o1, o2, COLLISION_MAX_CONTACTS, &contacts[0].geom, sizeof(dContact));
+
+	PhysicsSystem* physics = MLECSPhysicsSystem(game);
+
+	for (int i = 0; i < num_contacts; ++i)
+	{
+		contacts[i].surface.mode = dContactBounce | dContactSoftERP | dContactSoftCFM;
+		contacts[i].surface.mu = (o1_collider->properties.friction + o2_collider->properties.friction) / 2;
+		contacts[i].surface.bounce = (o1_collider->properties.restitution + o2_collider->properties.restitution) / 2;
+		contacts[i].surface.bounce_vel = (o1_collider->properties.bounce_vel + o2_collider->properties.bounce_vel) / 2;
+		contacts[i].surface.soft_erp = 0.2;
+		contacts[i].surface.soft_cfm = 0.01;
+
+		dJointID c = dJointCreateContact(physics->world, physics->joint_group, &contacts[i]);
+		dBodyID b1 = dGeomGetBody(o1);
+		dBodyID b2 = dGeomGetBody(o2);
+
+		if (b1 || b2)
+		{
+			dJointAttach(c, b1, b2);
+		}		
+	}
 }
 
 void PhysicsSystemUpdate(Game* game, PhysicsSystem* physics_system, double dt)
@@ -86,7 +128,7 @@ void PhysicsSystemUpdate(Game* game, PhysicsSystem* physics_system, double dt)
 		transform->previous.rotation.prev_w = transform->rotation.w;		
 	}
 
-	dSpaceCollide(physics_system->space, physics_system, &CollisionCallback);
+	dSpaceCollide(physics_system->space, game, &CollisionCallback);
 	dWorldStep(physics_system->world, dt);
 
 	for (size_t i = 0; i < sz; ++i)
@@ -164,4 +206,14 @@ void PhysicsSystemUpdate(Game* game, PhysicsSystem* physics_system, double dt)
 	}
 
 	dJointGroupEmpty(physics_system->joint_group);
+}
+
+dSpaceID PhysicsSystemCurrentSpace(Game* game)
+{
+	return MLECSPhysicsSystem(game)->space;
+}
+
+dWorldID PhysicsSystemCurrentWorld(Game* game)
+{
+	return MLECSPhysicsSystem(game)->world;
 }

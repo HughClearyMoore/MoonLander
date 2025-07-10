@@ -4,3 +4,4 @@
 "MESH" "elephant" "../data/meshes/elephant.obj"
 "MESH" "test" "../data/meshes/test.obj"
 "SHADER" "basic" "../data/shaders/basic.txt"
+"MESH" "plane" "../data/meshes/plane.obj"

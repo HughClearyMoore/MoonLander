@@ -4,19 +4,32 @@
 
 #include "MLCore.h"
 
-RigidBody RigidBodyCreate(ECS* ecs, Transform* transform, dWorldID world, dMass* mass)
+RigidBody RigidBodyCreate(ECS* ecs, Entity_t entity, dWorldID world, dMass* mass)
 {
 	RigidBody body = { 0 };
 
+	Transform* transform = MLECSGetComponentTransform(ecs, entity);
+
+	assert(transform && "rigid body requires a transform");
+
 	body.internal.world = world;
 
-	body.internal.body = dBodyCreate(world);	
+	body.internal.body = dBodyCreate(world);
 
 	dBodySetMass(body.internal.body, mass);
 	dBodySetPosition(body.internal.body,
 		transform->position.x,
 		transform->position.y,
 		transform->position.z);
+
+	transform->previous.position.prev_x = transform->position.x;
+	transform->previous.position.prev_y = transform->position.y;
+	transform->previous.position.prev_z = transform->position.z;
+
+	transform->previous.rotation.prev_x = transform->rotation.x;
+	transform->previous.rotation.prev_y = transform->rotation.y;
+	transform->previous.rotation.prev_z = transform->rotation.z;
+	transform->previous.rotation.prev_w = transform->rotation.w;
 
 	dQuaternion rot = {
 		transform->rotation.w,
@@ -30,9 +43,6 @@ RigidBody RigidBodyCreate(ECS* ecs, Transform* transform, dWorldID world, dMass*
 
 	body.mass = mass->mass;
 
-	body.internal.attached_geoms = DynArrayCreate(sizeof(dGeomID), 0, NULL);	
-	body.internal.ecs = ecs;
-
 	return body;
 }
 
@@ -40,14 +50,8 @@ RigidBody RigidBodyCreate(ECS* ecs, Transform* transform, dWorldID world, dMass*
 COMPONENT_DESTROY(RigidBody)
 {
 	RigidBody* rb = (RigidBody*)component;	
-
-	dGeomID* attached = rb->internal.attached_geoms.data;
-	const size_t sz = DynArraySize(&rb->internal.attached_geoms);
-
 	
 	dBodyDestroy(rb->internal.body); // no body told me but this removes attached geoms for you // I'll probably untrack them at some point
-
-	DynArrayDestroy(&rb->internal.attached_geoms);
 }
 
 void RigidBodyAddTorque(ECS* ecs, Entity_t entity, vec3 axis, float torque_nm)

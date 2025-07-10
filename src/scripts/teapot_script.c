@@ -76,9 +76,22 @@ UPDATE_FUNCTION(TeapotScript)
 		Mesh* mesh = MLMeshManagerGetMesh(&game_ctx->mesh_manager, "cube");
 		ShaderProgram* program = MLShaderProgramManagerGetProgram(&game_ctx->program_manager, "basic");
 
-		Model model = CreateModel(mesh, program);		
+		Model model = CreateModel(mesh, program);
 
 		MLECSAttachComponentModel(&game_ctx->ecs, new_entity, &model);
+
+		dMass mass;
+		dMassSetBox(&mass, 1.0, 1.0, 1.0, 1.0);
+
+		RigidBody body = RigidBodyCreate(&game_ctx->ecs, new_entity, PhysicsSystemCurrentWorld(game_ctx), &mass);
+
+		MLECSAttachComponentRigidBody(GameECS(game_ctx), new_entity, &body);
+
+
+		// let's attempt the impossible
+		dGeomID box = dCreateBox(0, 1.0, 1.0, 1.0);
+		Collider collider = ColliderDynamicCreate(game_ctx, new_entity, box, 0.5, 0.01, 0.01);
+		MLECSAttachComponentCollider(GameECS(game_ctx), new_entity, &collider);
 	}
 }
 

@@ -103,6 +103,11 @@ void GameDestroy(Game* game)
 	glfwTerminate();
 }
 
+ECS* GameECS(Game* game)
+{
+	return &game->ecs;
+}
+
 void GameStart(Game* game)
 {
 	LinkECSSystems(game);
@@ -190,14 +195,17 @@ void GameStart(Game* game)
 	{
 		dMass m;
 		dMassSetBox(&m, 1.0, 1.0, 1.0, 1.0);
-		RigidBody rb = RigidBodyCreate(&game->ecs, MLECSGetComponentTransform(&game->ecs, entity_2), physics->world, &m);		
+		RigidBody rb = RigidBodyCreate(&game->ecs, entity_2, physics->world, &m);		
 
 		MLECSAttachComponentRigidBody(&game->ecs, entity_2, &rb);
 
 		RigidBodyAddTorque(&game->ecs, entity_2, (vec3) { 0.0f, 1.0f, 0.0f }, 1);
-	}
 
-	//
+		dGeomID box = dCreateBox(0, 1.0, 1.0, 1.0);
+		Collider collider = ColliderDynamicCreate(game, entity_2, box, 0.01, 0.2, 0.05);
+
+		MLECSAttachComponentCollider(GameECS(game), entity_2, &collider);
+	}
 	
 	Entity_t elephant_child = MLECSNewEntity(&game->ecs);
 	
@@ -240,12 +248,35 @@ void GameStart(Game* game)
 		MLECSAttachComponentParent(&game->ecs, child_child, &p);
 	}
 
+	Entity_t terrain = MLECSNewEntity(&game->ecs);
+
 	{
-		Parent p = ParentCreate(&game->ecs, entity_2);
+		Mesh* plane_mesh = MLMeshManagerGetMesh(&game->mesh_manager, "plane");
+		Model plane_model = CreateModel(plane_mesh, program);
 
-		Entity_t camera = game->ecs.systems.rendering.camera;
-		MLECSAttachComponentParent(&game->ecs, camera, &p);
+		MLECSAttachComponentModel(&game->ecs, terrain, &plane_model);
 
+		Transform trans = TransformIdentity();
+
+		trans.position.y = -5.0;
+
+		trans.scale.scale_x = 10.0;
+		trans.scale.scale_z = 10.0;
+
+		MLECSAttachComponentTransform(&game->ecs, terrain, &trans);
+
+		dSpaceID space = PhysicsSystemCurrentSpace(game);
+
+		dGeomID shape = dCreatePlane(0, 0.0, 1.0, 0.0, -5.0);
+
+		Collider collider = ColliderStaticCreate(game,			
+			terrain,
+			shape,
+			0.01,
+			1.0,
+			0.05);
+
+		MLECSAttachComponentCollider(&game->ecs, terrain, &collider);		
 	}
 
 	//

@@ -2,8 +2,16 @@
 
 #include <ode/ode.h>
 
-typedef struct ECS ECS;
+#include <Utility.h>
+
+typedef struct Game Game;
 typedef struct RigidBody RigidBody;
+
+typedef struct ColliderData
+{
+	Entity_t entity;
+	STI_BOOL is_static;
+} ColliderData;
 
 typedef struct Collider
 {
@@ -12,7 +20,6 @@ typedef struct Collider
 		dGeomID geom;
 		Entity_t body;
 		dSpaceID space;
-		ECS* ecs;
 	} internal;
 	struct
 	{
@@ -25,4 +32,16 @@ typedef struct Collider
 	} properties;
 } Collider;
 
-Collider ColliderCreate(ECS* ecs, dSpaceID space, Entity_t rigid_body_owner, dGeomID geom);
+Collider ColliderDynamicCreate(Game* game, 
+	Entity_t rigid_body_owner, 
+	dGeomID geom,
+	double restitution,
+	double friction,
+	double bounce_vel);
+
+Collider ColliderStaticCreate(Game* game,
+	Entity_t owner,
+	dGeomID geom,
+	double restitution,
+	double friction,
+	double bounce_vel);

@@ -150,7 +150,7 @@ static DynArray ParseFace(char* token_in, DynArray* vertices, DynArray* vertex_n
 
 		if (packed_vertex[2])
 		{
-			size_t idx = (packed_vertex[0] - 1) * 3;
+			size_t idx = (packed_vertex[2] - 1) * 3;
 			v.xn = *(float*)DynArrayGet(vertex_normals, idx + 0);
 			v.yn = *(float*)DynArrayGet(vertex_normals, idx + 1);
 			v.zn = *(float*)DynArrayGet(vertex_normals, idx + 2);			

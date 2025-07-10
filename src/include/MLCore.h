@@ -32,3 +32,5 @@ Game GameCreate(const size_t width, const size_t height, const char* title);
 void GameDestroy(Game* game);
 
 void GameStart(Game* game);
+
+ECS* GameECS(Game* game);

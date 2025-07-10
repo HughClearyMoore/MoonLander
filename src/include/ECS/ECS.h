@@ -53,6 +53,8 @@ MLSystem* MLECSNewSystem(ECS* ecs, Signature_t signature);
 void MLECSDestroyMarkedEntities(Game* game);
 void MLECSReadyMarkedEntities(Game* game);
 
+PhysicsSystem* MLECSPhysicsSystem(Game* game);
+
 #define COMPONENT(type) type* MLECSGetComponent##type(ECS* ecs, Entity_t entity);
 
 #include "../../defs/MLComponents.defs"

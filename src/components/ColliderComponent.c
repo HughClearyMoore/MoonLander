@@ -4,24 +4,72 @@
 
 #include "MLCore.h"
 
-Collider ColliderCreate(ECS* ecs, dSpaceID space, Entity_t rigid_body_owner, dGeomID geom)
+Collider ColliderDynamicCreate(Game* game,
+	Entity_t rigid_body_owner,
+	dGeomID geom,
+	double restitution,
+	double friction,
+	double bounce_vel)
 {
 	Collider collider = { 0 };
 
 	collider.internal.body = rigid_body_owner;
 	collider.internal.geom = geom;
-	collider.internal.space = space;
+	collider.internal.space = PhysicsSystemCurrentSpace(game);
 
-	RigidBody* rb = MLECSGetComponentRigidBody(ecs, rigid_body_owner);
+	collider.properties.bounce_vel = bounce_vel;
+	collider.properties.friction = friction;
+	collider.properties.restitution = restitution;
+
+	RigidBody* rb = MLECSGetComponentRigidBody(GameECS(game), rigid_body_owner);
 
 	assert(rb);
 
-	dGeomSetBody(geom, rb->internal.body);
+	dGeomSetBody(geom, rb->internal.body);	
 
-	// register ourselves with the rigid body
-	DynArrayPush(&rb->internal.attached_geoms, &geom);
 
-	dSpaceAdd(space, geom);
+	dSpaceAdd(collider.internal.space, geom);
+
+
+	ColliderData* data = calloc(1, sizeof(ColliderData));
+	assert(data);
+	
+	data->entity = rigid_body_owner;
+	data->is_static = STI_FALSE;
+
+	dGeomSetData(geom, data);
+
+	return collider;
+}
+
+Collider ColliderStaticCreate(Game* game,
+	Entity_t owner,
+	dGeomID geom,
+	double restitution,
+	double friction,
+	double bounce_vel)
+{
+	Collider collider = { 0 };
+	
+	collider.internal.geom = geom;
+
+	
+
+	collider.internal.space = PhysicsSystemCurrentSpace(game);
+
+	collider.properties.bounce_vel = bounce_vel;
+	collider.properties.friction = friction;
+	collider.properties.restitution = restitution;
+
+	dSpaceAdd(collider.internal.space, geom);
+
+	ColliderData* data = calloc(1, sizeof(ColliderData));
+	assert(data);
+
+	data->entity = owner;
+	data->is_static = STI_TRUE;
+
+	dGeomSetData(geom, data);
 
 	return collider;
 }
@@ -33,31 +81,22 @@ static STI_BOOL geomFinder(const void* a, const void* b)
 
 COMPONENT_DESTROY(Collider)
 {
-	Collider* collider = (Collider*)component;
+	Collider* collider = (Collider*)component;	
 
-	// unregister myself
+	ColliderData* collider_data = (ColliderData*)dGeomGetData(collider->internal.geom);
 
-	RigidBody* rb = MLECSGetComponentRigidBody(collider->internal.ecs, collider->internal.body);
-
-	if (rb)
+	if (collider_data->is_static)
+	{
+		dSpaceRemove(collider->internal.space, collider->internal.geom);
+		dGeomDestroy(collider->internal.geom);
+	}
+	else
 	{		
-		// unregister ourselves
-		DynArray* attached = &rb->internal.attached_geoms;
+		dGeomSetBody(collider->internal.geom, 0);
+		dSpaceRemove(collider->internal.space, collider->internal.geom);
+		dGeomDestroy(collider->internal.geom);
 
-		// the ol swap and pop
-		STI_Finder finder = DynArrayFind(attached, &collider->internal.geom, &geomFinder);
+	}
 
-		assert(finder.is_found);
-
-		const size_t idx = finder.result.index;
-		const size_t back_idx = DynArraySize(attached) - 1;
-		
-		DynArraySwap(attached, idx, back_idx, dGeomID);
-
-		DynArrayPopBack(attached);
-	}	
-
-	dSpaceRemove(collider->internal.space, collider->internal.geom);
-	dGeomSetBody(collider->internal.geom, NULL);
-	dGeomDestroy(collider->internal.geom);
+	free(collider_data);
 }
