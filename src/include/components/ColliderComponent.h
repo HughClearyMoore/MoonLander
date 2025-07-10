@@ -9,7 +9,7 @@ typedef struct RigidBody RigidBody;
 
 typedef struct ColliderData
 {
-	Entity_t entity;
+	Entity_ID_t entity_id;
 	STI_BOOL is_static;
 } ColliderData;
 
@@ -17,8 +17,7 @@ typedef struct Collider
 {
 	struct
 	{
-		dGeomID geom;
-		Entity_t body;
+		dGeomID geom;		
 		dSpaceID space;
 	} internal;
 	struct

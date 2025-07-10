@@ -13,7 +13,13 @@ Collider ColliderDynamicCreate(Game* game,
 {
 	Collider collider = { 0 };
 
-	collider.internal.body = rigid_body_owner;
+	EntityStatus owner_status = MLEntityManagerGetStatus(MLECSEntityManager(game), rigid_body_owner);
+
+	if (!owner_status.alive)
+	{
+		assert("Can't add a collider to a dead entity");
+	}
+
 	collider.internal.geom = geom;
 	collider.internal.space = PhysicsSystemCurrentSpace(game);
 
@@ -34,7 +40,9 @@ Collider ColliderDynamicCreate(Game* game,
 	ColliderData* data = calloc(1, sizeof(ColliderData));
 	assert(data);
 	
-	data->entity = rigid_body_owner;
+	data->entity_id.entity = rigid_body_owner;
+	data->entity_id.generation = owner_status.generation;
+
 	data->is_static = STI_FALSE;
 
 	dGeomSetData(geom, data);
@@ -66,7 +74,16 @@ Collider ColliderStaticCreate(Game* game,
 	ColliderData* data = calloc(1, sizeof(ColliderData));
 	assert(data);
 
-	data->entity = owner;
+	EntityStatus owner_status = MLEntityManagerGetStatus(MLECSEntityManager(game), owner);
+
+	if (!owner_status.alive)
+	{
+		assert("Can't add collider to dead entity");
+	}
+
+	data->entity_id.entity = owner;
+	data->entity_id.generation = owner_status.generation;
+	
 	data->is_static = STI_TRUE;
 
 	dGeomSetData(geom, data);

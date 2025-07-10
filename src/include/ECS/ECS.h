@@ -54,6 +54,7 @@ void MLECSDestroyMarkedEntities(Game* game);
 void MLECSReadyMarkedEntities(Game* game);
 
 PhysicsSystem* MLECSPhysicsSystem(Game* game);
+EntityManager* MLECSEntityManager(Game* game);
 
 #define COMPONENT(type) type* MLECSGetComponent##type(ECS* ecs, Entity_t entity);
 

@@ -280,7 +280,7 @@ void GameStart(Game* game)
 	}
 
 	//
-	const double physics_frequency = 20;
+	const double physics_frequency = 60;
 	const double fixed_dt = 1 / physics_frequency;
 
 	double time = glfwGetTime();

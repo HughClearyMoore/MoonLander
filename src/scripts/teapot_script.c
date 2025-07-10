@@ -45,7 +45,7 @@ UPDATE_FUNCTION(TeapotScript)
 
 	vec3 delta_rot_axis = { 1.0, 0.0, 1.0 };
 	glm_normalize(delta_rot_axis);
-	//TransformRotate(t, delta_rot_axis, dt);
+	TransformRotate(t, delta_rot_axis, dt);
 
 
 	if (input->keys[GLFW_KEY_LEFT_SHIFT].just_pressed)
@@ -66,8 +66,10 @@ UPDATE_FUNCTION(TeapotScript)
 		Transform trans = TransformIdentity();
 
 		trans.position.x = final_pos[0];
-		trans.position.y = final_pos[1];
+		//trans.position.y = final_pos[1];
 		trans.position.z = final_pos[2];
+		
+		trans.position.y = 0.0;
 
 		TransformUniformScale(&trans, MakeRandom() * 3 + 1.0);		
 

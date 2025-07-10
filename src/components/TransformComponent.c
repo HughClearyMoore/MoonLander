@@ -240,7 +240,7 @@ void TransformGetWorldVersor(ECS* ecs, Entity_t entity, versor out)
 
 	if (p)
 	{
-		EntityStatus status = MLEntityManagerGetStatus(&ecs->managers.entity_manager, p->parent);
+		EntityStatus status = MLEntityManagerGetStatus(ecs->managers.entity_manager, p->parent);
 
 		if (status.alive && (status.generation == p->generation))
 		{

@@ -163,3 +163,8 @@ PhysicsSystem* MLECSPhysicsSystem(Game* game)
 {
 	return &game->ecs.systems.physics;
 }
+
+EntityManager* MLECSEntityManager(Game* game)
+{
+	return game->ecs.managers.entity_manager;
+}

@@ -8,7 +8,17 @@
 #include "MLCore.h"
 #include "ECS/Component.h"
 
-#define COLLISION_MAX_CONTACTS 8
+static inline size_t CreatePairIndex(Entity_t e1, Entity_t e2)
+{
+	if (e1 > e2)
+	{
+		Entity_t tmp = e1;
+		e1 = e2;
+		e2 = tmp;
+	}
+
+	return ((size_t)e1 << (8 * sizeof(Entity_t))) | (size_t)e2;
+}
 
 PhysicsSystem PhysicsSystemCreate(Game* game)
 {
@@ -30,6 +40,17 @@ PhysicsSystem PhysicsSystemCreate(Game* game)
 	system.space = dSimpleSpaceCreate(0);
 
 	dWorldSetGravity(system.world, 0.0, -1.625, 0.0);
+	
+	system.collision_tracking.collisions = HashMapCreate(
+		HASHMAP_KEY_INT,
+		sizeof(STI_BOOL),
+		1024,
+		&HashMapIntHash,
+		&HashMapIntCmp,
+		NULL);
+	
+
+	system.collision_tracking.marked_collisions = DynArrayCreate(sizeof(CollidingPair), MAX_ENTITIES, NULL);
 
 	return system;
 }
@@ -41,6 +62,9 @@ void PhysicsSystemDestroy(Game* game)
 	//Entity_t* entities = physics_system->system->entities.data;
 	//const size_t sz = DynArraySize(&physics_system->system->entities);
 
+	HashMapDestroy(&physics_system->collision_tracking.collisions);
+
+	DynArrayDestroy(&physics_system->collision_tracking.marked_collisions);
 	
 	while (DynArraySize(&physics_system->collision_system->entities) > 0)
 	{
@@ -62,6 +86,81 @@ void PhysicsSystemDestroy(Game* game)
 	dCloseODE();
 }
 
+static void ClearCollisionPairs(PhysicsSystem* physics_system)
+{
+	CollisionTracking* tracking = &physics_system->collision_tracking;
+
+	DynArray* marked_collisions = &tracking->marked_collisions;
+	HashMap* collisions = &tracking->collisions;
+
+	const size_t pair_count = DynArraySize(marked_collisions);
+	CollidingPair* pairs = (CollidingPair*)marked_collisions->data;
+
+	for (size_t i = 0; i < pair_count; ++i)
+	{
+		CollidingPair pair = pairs[i];
+
+		STI_BOOL* is_colliding = HashMapGet(collisions, &pair.pair_index);
+
+		assert(is_colliding);
+
+		*is_colliding = STI_FALSE;
+	}
+
+	// DynArray doesn't have clear but here's the next best thing
+	marked_collisions->size = 0;
+}
+
+static void FindCollisionExits(PhysicsSystem* physics_system)
+{
+	CollisionTracking* tracking = &physics_system->collision_tracking;
+
+	DynArray* marked_collisions = &tracking->marked_collisions;
+	HashMap* collisions = &tracking->collisions;
+
+	const size_t pair_count = DynArraySize(marked_collisions);
+	CollidingPair* pairs = (CollidingPair*)marked_collisions->data;
+
+	for (size_t i = 0; i < pair_count; ++i)
+	{
+		CollidingPair pair = pairs[i];		
+
+		STI_BOOL* is_colliding = (STI_BOOL*)HashMapGet(collisions, &pair.pair_index);
+
+		assert(is_colliding);
+
+		if (*is_colliding == STI_FALSE)
+		{
+			// collision exit
+		}
+	}
+}
+
+static void OnEntityCollision(PhysicsSystem* physics_system, Entity_t entity_1, Entity_t entity_2)
+{
+	CollisionTracking* tracking = &physics_system->collision_tracking;
+
+	const size_t pair_index = CreatePairIndex(entity_1, entity_2);
+	HashMap* collisions = &tracking->collisions;
+
+	STI_BOOL* is_colliding = HashMapGet(collisions, &pair_index);
+
+	if (is_colliding)
+	{
+		// collision stay
+	}
+	else
+	{
+		// collision enter
+	}
+
+	STI_BOOL true_val = STI_TRUE;
+	HashMapInsert(collisions, &pair_index, &true_val);
+
+	CollidingPair pair = { .pair_index = pair_index };
+	DynArrayPush(&tracking->marked_collisions, &pair);
+}
+
 static void CollisionCallback(void* data, dGeomID o1, dGeomID o2)
 {	
 	dContact contacts[COLLISION_MAX_CONTACTS];
@@ -71,15 +170,26 @@ static void CollisionCallback(void* data, dGeomID o1, dGeomID o2)
 	ColliderData* o1_data = dGeomGetData(o1);
 	ColliderData* o2_data = dGeomGetData(o2);
 
-	Collider* o1_collider = MLECSGetComponentCollider(GameECS(game), o1_data->entity);
-	Collider* o2_collider = MLECSGetComponentCollider(GameECS(game), o2_data->entity);
+	Collider* o1_collider = MLECSGetComponentCollider(GameECS(game), o1_data->entity_id.entity);
+	Collider* o2_collider = MLECSGetComponentCollider(GameECS(game), o2_data->entity_id.entity);
 
 	if (!(o1_collider && o2_collider))
 	{
 		assert(0 && "Collider missing");
-	}	
+	}
 
 	size_t num_contacts = dCollide(o1, o2, COLLISION_MAX_CONTACTS, &contacts[0].geom, sizeof(dContact));
+
+	if (num_contacts) // if num_contact > 0 then a collision has occurred
+	{		
+		Entity_t entity_1 = o1_data->entity_id.entity;
+		Entity_t entity_2 = o2_data->entity_id.entity;
+
+		if (entity_1 != entity_2)
+		{
+			OnEntityCollision(MLECSPhysicsSystem(game), entity_1, entity_2);
+		}		
+	}
 
 	PhysicsSystem* physics = MLECSPhysicsSystem(game);
 
@@ -128,7 +238,12 @@ void PhysicsSystemUpdate(Game* game, PhysicsSystem* physics_system, double dt)
 		transform->previous.rotation.prev_w = transform->rotation.w;		
 	}
 
+	ClearCollisionPairs(physics_system);
+
 	dSpaceCollide(physics_system->space, game, &CollisionCallback);
+
+	FindCollisionExits(physics_system);
+
 	dWorldStep(physics_system->world, dt);
 
 	for (size_t i = 0; i < sz; ++i)

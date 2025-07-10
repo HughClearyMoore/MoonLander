@@ -7,6 +7,7 @@
 
 #include "ECSConfig.h"
 
+
 typedef struct EntityStatus
 {
 	STI_BOOL alive;
