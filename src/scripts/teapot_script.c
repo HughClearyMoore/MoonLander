@@ -89,7 +89,8 @@ UPDATE_FUNCTION(TeapotScript)
 
 
 		// let's attempt the impossible
-		dGeomID box = dCreateBox(0, 1.0, 1.0, 1.0);
+		double box_scale = trans.scale.scale_x;
+		dGeomID box = dCreateBox(0, box_scale, box_scale, box_scale);
 		Collider collider = ColliderDynamicCreate(game_ctx, new_entity, box, 0.5, 0.01, 0.01);
 		MLECSAttachComponentCollider(GameECS(game_ctx), new_entity, &collider);
 	}
