@@ -110,6 +110,8 @@ ECS* GameECS(Game* game)
 
 void GameStart(Game* game)
 {
+	srand(time(NULL));
+
 	LinkECSSystems(game);
 
 
