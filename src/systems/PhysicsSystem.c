@@ -200,7 +200,7 @@ static void CollisionCallback(void* data, dGeomID o1, dGeomID o2)
 		contacts[i].surface.bounce = (o1_collider->properties.restitution + o2_collider->properties.restitution) / 2;
 		contacts[i].surface.bounce_vel = (o1_collider->properties.bounce_vel + o2_collider->properties.bounce_vel) / 2;
 		contacts[i].surface.soft_erp = 0.2;
-		contacts[i].surface.soft_cfm = 0.01;
+		contacts[i].surface.soft_cfm = 10e-5;
 
 		dJointID c = dJointCreateContact(physics->world, physics->joint_group, &contacts[i]);
 		dBodyID b1 = dGeomGetBody(o1);

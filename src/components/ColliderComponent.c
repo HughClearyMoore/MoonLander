@@ -69,6 +69,9 @@ Collider ColliderStaticCreate(Game* game,
 	collider.properties.friction = friction;
 	collider.properties.restitution = restitution;
 
+	collider.properties.soft_cfm = 0.2;
+	collider.properties.soft_erp = 10e-5;
+
 	dSpaceAdd(collider.internal.space, geom);
 
 	ColliderData* data = calloc(1, sizeof(ColliderData));
