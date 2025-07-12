@@ -250,6 +250,7 @@ static void OnEntityCollision(Game* game, PhysicsSystem* physics_system, Entity_
 		DynArrayPush(&tracking->marked_collisions, &pair_index);
 
 		CallOnEnterScript(game, entity_1.entity, entity_2.entity);
+		CallOnStayScript(game, entity_1.entity, entity_2.entity);
 	}
 	else
 	{
@@ -275,6 +276,7 @@ static void OnEntityCollision(Game* game, PhysicsSystem* physics_system, Entity_
 			collision_tracker->is_colliding = STI_TRUE;
 
 			CallOnEnterScript(game, entity_1.entity, entity_2.entity);
+			CallOnStayScript(game, entity_1.entity, entity_2.entity);
 		}
 	}
 }
