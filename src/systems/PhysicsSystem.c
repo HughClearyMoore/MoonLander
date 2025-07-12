@@ -8,8 +8,6 @@
 #include "MLCore.h"
 #include "ECS/Component.h"
 
-#define GRACE_PERIOD 0.2f
-
 typedef struct EntityPair
 {
 	Entity_t entity_1;
@@ -20,8 +18,7 @@ typedef struct CollisionInternalTracker
 {
 	Entity_ID_t entity_1;
 	Entity_ID_t entity_2;
-	STI_BOOL is_colliding;
-	float grace_period;
+	STI_BOOL is_colliding;	
 } CollisionInternalTracker;
 
 static inline size_t CreatePairIndex(Entity_t e1, Entity_t e2)
@@ -186,11 +183,6 @@ static void ClearCollisionPairs(PhysicsSystem* physics_system)
 
 		assert(tracker);
 
-		if (tracker->is_colliding)
-		{
-			tracker->grace_period = GRACE_PERIOD;
-		}
-
 		tracker->is_colliding = STI_FALSE;
 	}
 }
@@ -217,25 +209,20 @@ static void FindCollisionExits(Game* game, PhysicsSystem* physics_system, double
 		
 		if (tracker->is_colliding == STI_FALSE)
 		{
-			tracker->grace_period -= (float)dt;
+			// are they the same entities? // in an exceptional case they're not
+			const EntityStatus e1_status = MLEntityManagerGetStatus(MLECSEntityManager(game), tracker->entity_1.entity);
+			const EntityStatus e2_status = MLEntityManagerGetStatus(MLECSEntityManager(game), tracker->entity_2.entity);
 
-			if (tracker->grace_period <= 0)
+			if (e1_status.generation == tracker->entity_1.generation &&
+				e2_status.generation == tracker->entity_2.generation)
 			{
-				// are they the same entities? // in an exceptional case they're not
-				const EntityStatus e1_status = MLEntityManagerGetStatus(MLECSEntityManager(game), tracker->entity_1.entity);
-				const EntityStatus e2_status = MLEntityManagerGetStatus(MLECSEntityManager(game), tracker->entity_2.entity);
-
-				if (e1_status.generation == tracker->entity_1.generation &&
-					e2_status.generation == tracker->entity_2.generation)
-				{
-					// call the collision exit callback for scripts
-					CallOnExitScript(game, tracker->entity_1.entity, tracker->entity_2.entity);
-				}
-
-				// we need to remove it
-				HashMapErase(collisions, &pair);
-				continue;
+				// call the collision exit callback for scripts
+				CallOnExitScript(game, tracker->entity_1.entity, tracker->entity_2.entity);
 			}
+
+			// we need to remove it
+			HashMapErase(collisions, &pair);
+			continue;
 		}
 		
 		pairs[write_idx++] = pair;
@@ -257,7 +244,7 @@ static void OnEntityCollision(Game* game, PhysicsSystem* physics_system, Entity_
 	if (collision_tracker == NULL)
 	{
 		// collision enter
-		CollisionInternalTracker tracker = { .entity_1 = entity_1, .entity_2 = entity_2, .is_colliding = STI_TRUE, .grace_period = GRACE_PERIOD };
+		CollisionInternalTracker tracker = { .entity_1 = entity_1, .entity_2 = entity_2, .is_colliding = STI_TRUE };
 		HashMapInsert(collisions, &pair_index, &tracker);		
 
 		DynArrayPush(&tracking->marked_collisions, &pair_index);
