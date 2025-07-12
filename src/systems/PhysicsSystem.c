@@ -8,6 +8,22 @@
 #include "MLCore.h"
 #include "ECS/Component.h"
 
+#define GRACE_PERIOD 0.2f
+
+typedef struct EntityPair
+{
+	Entity_t entity_1;
+	Entity_t entity_2;
+} EntityPair;
+
+typedef struct CollisionInternalTracker
+{
+	Entity_ID_t entity_1;
+	Entity_ID_t entity_2;
+	STI_BOOL is_colliding;
+	float grace_period;
+} CollisionInternalTracker;
+
 static inline size_t CreatePairIndex(Entity_t e1, Entity_t e2)
 {
 	if (e1 > e2)
@@ -18,6 +34,72 @@ static inline size_t CreatePairIndex(Entity_t e1, Entity_t e2)
 	}
 
 	return ((size_t)e1 << (8 * sizeof(Entity_t))) | (size_t)e2;
+}
+
+static inline EntityPair GetEntityPairFromIndex(const size_t pair_index)
+{
+	EntityPair pair = { 0 };
+
+	const size_t entity_max = (Entity_t)(~0);
+
+	pair.entity_1 = ((entity_max << (sizeof(Entity_t) * 8)) & pair_index) >> (sizeof(Entity_t) * 8);
+	pair.entity_2 = entity_max & pair_index;
+
+	return pair;
+}
+
+static inline void CallOnEnterScript(Game* game, Entity_t e1, Entity_t e2)
+{
+	ECS* ecs = GameECS(game);
+
+	Script* e1_script = MLECSGetComponentScript(ecs, e1);
+	Script* e2_script = MLECSGetComponentScript(ecs, e2);
+
+	if (e1_script && e1_script->script && e1_script->script->collision_enter && e1_script->context)
+	{
+		e1_script->script->collision_enter(game, e1, e1_script->context, e2);
+	}
+
+	if (e2_script && e2_script->script && e2_script->script->collision_enter && e2_script->context)
+	{
+		e2_script->script->collision_enter(game, e2, e2_script->context, e1);
+	}
+}
+
+static inline void CallOnExitScript(Game* game, Entity_t e1, Entity_t e2)
+{
+	ECS* ecs = GameECS(game);
+
+	Script* e1_script = MLECSGetComponentScript(ecs, e1);
+	Script* e2_script = MLECSGetComponentScript(ecs, e2);
+
+	if (e1_script && e1_script->script && e1_script->script->collision_exit && e1_script->context)
+	{
+		e1_script->script->collision_exit(game, e1, e1_script->context, e2);
+	}
+
+	if (e2_script && e2_script->script && e2_script->script->collision_exit && e2_script->context)
+	{
+		e2_script->script->collision_exit(game, e2, e2_script->context, e1);
+	}
+}
+
+static inline void CallOnStayScript(Game* game, Entity_t e1, Entity_t e2)
+{
+	ECS* ecs = GameECS(game);
+
+	Script* e1_script = MLECSGetComponentScript(ecs, e1);
+	Script* e2_script = MLECSGetComponentScript(ecs, e2);
+
+	if (e1_script && e1_script->script && e1_script->script->collision && e1_script->context)
+	{
+		e1_script->script->collision(game, e1, e1_script->context, e2);
+	}
+
+	if (e2_script && e2_script->script && e2_script->script->collision && e2_script->context)
+	{
+		e2_script->script->collision(game, e2, e2_script->context, e1);
+	}
 }
 
 PhysicsSystem PhysicsSystemCreate(Game* game)
@@ -43,14 +125,14 @@ PhysicsSystem PhysicsSystemCreate(Game* game)
 	
 	system.collision_tracking.collisions = HashMapCreate(
 		HASHMAP_KEY_INT,
-		sizeof(STI_BOOL),
+		sizeof(CollisionInternalTracker),
 		1024,
 		&HashMapIntHash,
 		&HashMapIntCmp,
 		NULL);
 	
 
-	system.collision_tracking.marked_collisions = DynArrayCreate(sizeof(CollidingPair), MAX_ENTITIES, NULL);
+	system.collision_tracking.marked_collisions = DynArrayCreate(sizeof(size_t), MAX_ENTITIES, NULL);
 
 	return system;
 }
@@ -94,24 +176,26 @@ static void ClearCollisionPairs(PhysicsSystem* physics_system)
 	HashMap* collisions = &tracking->collisions;
 
 	const size_t pair_count = DynArraySize(marked_collisions);
-	CollidingPair* pairs = (CollidingPair*)marked_collisions->data;
+	size_t* pairs = (size_t*)marked_collisions->data;
 
 	for (size_t i = 0; i < pair_count; ++i)
 	{
-		CollidingPair pair = pairs[i];
+		size_t pair = pairs[i];
 
-		STI_BOOL* is_colliding = HashMapGet(collisions, &pair.pair_index);
+		CollisionInternalTracker* tracker = (CollisionInternalTracker*)HashMapGet(collisions, &pair);
 
-		assert(is_colliding);
+		assert(tracker);
 
-		*is_colliding = STI_FALSE;
+		if (tracker->is_colliding)
+		{
+			tracker->grace_period = GRACE_PERIOD;
+		}
+
+		tracker->is_colliding = STI_FALSE;
 	}
-
-	// DynArray doesn't have clear but here's the next best thing
-	marked_collisions->size = 0;
 }
 
-static void FindCollisionExits(PhysicsSystem* physics_system)
+static void FindCollisionExits(Game* game, PhysicsSystem* physics_system, double dt)
 {
 	CollisionTracking* tracking = &physics_system->collision_tracking;
 
@@ -119,46 +203,93 @@ static void FindCollisionExits(PhysicsSystem* physics_system)
 	HashMap* collisions = &tracking->collisions;
 
 	const size_t pair_count = DynArraySize(marked_collisions);
-	CollidingPair* pairs = (CollidingPair*)marked_collisions->data;
+	size_t* pairs = (size_t*)marked_collisions->data;
+
+	size_t write_idx = 0;	
 
 	for (size_t i = 0; i < pair_count; ++i)
-	{
-		CollidingPair pair = pairs[i];		
+	{		
+		size_t pair = pairs[i];		
 
-		STI_BOOL* is_colliding = (STI_BOOL*)HashMapGet(collisions, &pair.pair_index);
+		CollisionInternalTracker* tracker = (CollisionInternalTracker*)HashMapGet(collisions, &pair);
 
-		assert(is_colliding);
-
-		if (*is_colliding == STI_FALSE)
+		assert(tracker);
+		
+		if (tracker->is_colliding == STI_FALSE)
 		{
-			// collision exit
+			tracker->grace_period -= (float)dt;
+
+			if (tracker->grace_period <= 0)
+			{
+				// are they the same entities? // in an exceptional case they're not
+				const EntityStatus e1_status = MLEntityManagerGetStatus(MLECSEntityManager(game), tracker->entity_1.entity);
+				const EntityStatus e2_status = MLEntityManagerGetStatus(MLECSEntityManager(game), tracker->entity_2.entity);
+
+				if (e1_status.generation == tracker->entity_1.generation &&
+					e2_status.generation == tracker->entity_2.generation)
+				{
+					// call the collision exit callback for scripts
+					CallOnExitScript(game, tracker->entity_1.entity, tracker->entity_2.entity);
+				}
+
+				// we need to remove it
+				HashMapErase(collisions, &pair);
+				continue;
+			}
 		}
+		
+		pairs[write_idx++] = pair;
 	}
+
+
+	marked_collisions->size = write_idx;
 }
 
-static void OnEntityCollision(PhysicsSystem* physics_system, Entity_t entity_1, Entity_t entity_2)
+static void OnEntityCollision(Game* game, PhysicsSystem* physics_system, Entity_ID_t entity_1, Entity_ID_t entity_2)
 {
 	CollisionTracking* tracking = &physics_system->collision_tracking;
 
-	const size_t pair_index = CreatePairIndex(entity_1, entity_2);
+	const size_t pair_index = CreatePairIndex(entity_1.entity, entity_2.entity);
 	HashMap* collisions = &tracking->collisions;
 
-	STI_BOOL* is_colliding = HashMapGet(collisions, &pair_index);
+	CollisionInternalTracker* collision_tracker = (CollisionInternalTracker*)HashMapGet(collisions, &pair_index);
 
-	if (is_colliding)
+	if (collision_tracker == NULL)
 	{
-		// collision stay
+		// collision enter
+		CollisionInternalTracker tracker = { .entity_1 = entity_1, .entity_2 = entity_2, .is_colliding = STI_TRUE, .grace_period = GRACE_PERIOD };
+		HashMapInsert(collisions, &pair_index, &tracker);		
+
+		DynArrayPush(&tracking->marked_collisions, &pair_index);
+
+		CallOnEnterScript(game, entity_1.entity, entity_2.entity);
 	}
 	else
 	{
-		// collision enter
+		const size_t internal_e1_gen = collision_tracker->entity_1.generation;
+		const size_t internal_e2_gen = collision_tracker->entity_2.generation;
+		const STI_BOOL is_colliding = collision_tracker->is_colliding;
+
+		if (
+			internal_e1_gen == entity_1.generation &&
+			internal_e2_gen == entity_2.generation)
+		{
+			// collision stay
+			collision_tracker->is_colliding = STI_TRUE;
+			
+			CallOnStayScript(game, entity_1.entity, entity_2.entity);
+		}
+		else
+		{
+			// this is a bizarre scenario but it can happen
+			// one of the entities is different so it's always an enter? I don't think you can exit from here // or maybe you can?
+			// collision enter
+
+			collision_tracker->is_colliding = STI_TRUE;
+
+			CallOnEnterScript(game, entity_1.entity, entity_2.entity);
+		}
 	}
-
-	STI_BOOL true_val = STI_TRUE;
-	HashMapInsert(collisions, &pair_index, &true_val);
-
-	CollidingPair pair = { .pair_index = pair_index };
-	DynArrayPush(&tracking->marked_collisions, &pair);
 }
 
 static void CollisionCallback(void* data, dGeomID o1, dGeomID o2)
@@ -171,7 +302,7 @@ static void CollisionCallback(void* data, dGeomID o1, dGeomID o2)
 	ColliderData* o2_data = dGeomGetData(o2);
 
 	Collider* o1_collider = MLECSGetComponentCollider(GameECS(game), o1_data->entity_id.entity);
-	Collider* o2_collider = MLECSGetComponentCollider(GameECS(game), o2_data->entity_id.entity);
+	Collider* o2_collider = MLECSGetComponentCollider(GameECS(game), o2_data->entity_id.entity);	
 
 	if (!(o1_collider && o2_collider))
 	{
@@ -179,17 +310,6 @@ static void CollisionCallback(void* data, dGeomID o1, dGeomID o2)
 	}
 
 	size_t num_contacts = dCollide(o1, o2, COLLISION_MAX_CONTACTS, &contacts[0].geom, sizeof(dContact));
-
-	if (num_contacts) // if num_contact > 0 then a collision has occurred
-	{		
-		Entity_t entity_1 = o1_data->entity_id.entity;
-		Entity_t entity_2 = o2_data->entity_id.entity;
-
-		if (entity_1 != entity_2)
-		{
-			OnEntityCollision(MLECSPhysicsSystem(game), entity_1, entity_2);
-		}		
-	}
 
 	PhysicsSystem* physics = MLECSPhysicsSystem(game);
 
@@ -210,6 +330,11 @@ static void CollisionCallback(void* data, dGeomID o1, dGeomID o2)
 		{
 			dJointAttach(c, b1, b2);
 		}		
+	}
+
+	if (num_contacts) // if num_contact > 0 then a collision has occurred
+	{
+		OnEntityCollision(game, MLECSPhysicsSystem(game), o1_data->entity_id, o2_data->entity_id);
 	}
 }
 
@@ -242,7 +367,7 @@ void PhysicsSystemUpdate(Game* game, PhysicsSystem* physics_system, double dt)
 
 	dSpaceCollide(physics_system->space, game, &CollisionCallback);
 
-	FindCollisionExits(physics_system);
+	FindCollisionExits(game, physics_system, dt);
 
 	dWorldStep(physics_system->world, dt);
 

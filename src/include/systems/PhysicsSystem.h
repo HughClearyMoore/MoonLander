@@ -2,6 +2,7 @@
 
 #include <ode/ode.h>
 
+#include <DynArray.h>
 #include <HashMap.h>
 
 #include "../ECS/System.h"
@@ -12,15 +13,10 @@
 
 typedef struct Game Game;
 
-typedef struct CollidingPair
-{
-	size_t pair_index;
-} CollidingPair;
-
 typedef struct CollisionTracking
 {
 	HashMap collisions; // HashMap<size_t, STI_BOOL>
-	
+
 	DynArray marked_collisions; // DynArray<CollidingPair>
 
 } CollisionTracking;

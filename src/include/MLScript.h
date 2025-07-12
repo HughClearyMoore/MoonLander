@@ -12,9 +12,9 @@ typedef void(*OnReady_t)(Game* game_ctx, Entity_t entity, ScriptContext ctx);
 typedef void(*OnCreate_t)(Game* game_ctx, ScriptContext* ctx_ptr);
 typedef void(*OnDestroy_t)(Game* game_ctx, Entity_t entity, ScriptContext ctx);
 
-typedef void(*OnCollisionEnter_t)(Game* game_ctx, Entity_t, ScriptContext ctx, Entity_t other);
-typedef void(*OnCollision_t)(Game* game_ctx, Entity_t, ScriptContext ctx, Entity_t other);
-typedef void(*OnCollisionExit_t)(Game* game_ctx, Entity_t, ScriptContext ctx, Entity_t other);
+typedef void(*OnCollisionEnter_t)(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other);
+typedef void(*OnCollision_t)(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other);
+typedef void(*OnCollisionExit_t)(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other);
 
 
 typedef struct MLScript
@@ -81,9 +81,9 @@ typedef struct MLScript
 #define READY_FUNCTION(name) void OnReady##name(Game* game_ctx, Entity_t entity, ScriptContext ctx)
 #define DESTROY_FUNCTION(name) void OnDestroy##name(Game* game_ctx, Entity_t entity, ScriptContext ctx)
 #define UPDATE_FUNCTION(name) void OnUpdate##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, double dt)
-#define COLLISION_ENTER_FUNCTION(name) void OnCollisionEnter##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other);
-#define COLLISION_FUNCTION(name) void OnCollision##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other);
-#define COLLISION_EXIT_FUNCTION(name) void OnCollisionExit##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other);
+#define COLLISION_ENTER_FUNCTION(name) void OnCollisionEnter##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other)
+#define COLLISION_FUNCTION(name) void OnCollision##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other)
+#define COLLISION_EXIT_FUNCTION(name) void OnCollisionExit##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other)
 
 #define GET_INPUT &game_ctx->input;
 

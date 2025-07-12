@@ -95,6 +95,10 @@ UPDATE_FUNCTION(TeapotScript)
 		dGeomID box = dCreateBox(0, box_scale, box_scale, box_scale);
 		Collider collider = ColliderDynamicCreate(game_ctx, new_entity, box, 0.5, 0.01, 0.01);
 		MLECSAttachComponentCollider(GameECS(game_ctx), new_entity, &collider);
+
+		// temporary
+		Script scr = ScriptComponentCreate(game_ctx, SCRIPT_ENUM_ElephantScript);
+		MLECSAttachComponentScript(GameECS(game_ctx), new_entity, &scr);
 	}
 }
 

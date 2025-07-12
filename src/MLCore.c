@@ -207,6 +207,10 @@ void GameStart(Game* game)
 		Collider collider = ColliderDynamicCreate(game, entity_2, box, 0.01, 0.2, 0.05);
 
 		MLECSAttachComponentCollider(GameECS(game), entity_2, &collider);
+
+		Script elephant_script = ScriptComponentCreate(game, SCRIPT_ENUM_ElephantScript);
+
+		MLECSAttachComponentScript(&game->ecs, entity_2, &elephant_script);
 	}
 	
 	Entity_t elephant_child = MLECSNewEntity(&game->ecs);
