@@ -2,13 +2,13 @@
 
 #include "MLCore.h"
 
-ScriptSystem ScriptSystemCreate(Game* game)
+ScriptSystem ScriptSystemCreate(Game* game, ECS* ecs)
 {
 	ScriptSystem system = { 0 };
 	Signature_t signature = 0;
 	signature |= 1 << ENUM_COMPONENT_Script;
 
-	system.system = MLECSNewSystem(&game->ecs, signature);
+	system.system = MLECSNewSystem(ecs, signature);
 
 	return system;
 }
@@ -24,7 +24,7 @@ void ScriptSystemUpdate(Game* game, ScriptSystem* system, double dt)
 	{
 		Entity_t e = entities[i];
 
-		Script* script = MLECSGetComponentScript(&game->ecs, e);
+		Script* script = MLECSGetComponentScript(GameECS(game), e);
 
 		if (script->script->update)
 		{
@@ -44,7 +44,7 @@ void ScriptSystemDestroy(Game* game, ScriptSystem* system)
 	{
 		Entity_t e = entities[i];
 
-		Script* script = MLECSGetComponentScript(&game->ecs, e);
+		Script* script = MLECSGetComponentScript(GameECS(game), e);
 
 		if (script->script->destroy)
 		{

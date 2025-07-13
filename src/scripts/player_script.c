@@ -50,6 +50,7 @@ UPDATE_FUNCTION(PlayerScript)
 {
 	PlayerContext* player_ctx = (PlayerContext*)ctx;	
 	Input* input = GET_INPUT;
+	ECS* ecs = GameECS(game_ctx);
 
 	if (input->keys[GLFW_KEY_T].just_pressed)
 	{
@@ -60,7 +61,7 @@ UPDATE_FUNCTION(PlayerScript)
 
 	if (player_ctx->killing_teapot)
 	{
-		Script* teapot_script = MLECSGetComponentScript(&game_ctx->ecs, player_ctx->teapot);
+		Script* teapot_script = MLECSGetComponentScript(ecs, player_ctx->teapot);
 		if (teapot_script)
 		{
 			TeapotCtx* teapot_ctx = (TeapotCtx*)teapot_script->context;
@@ -70,7 +71,7 @@ UPDATE_FUNCTION(PlayerScript)
 	}
 
 
-	Transform* t = MLECSGetComponentTransform(&game_ctx->ecs, entity);
+	Transform* t = MLECSGetComponentTransform(ecs, entity);
 
 	versor player_rot;
 	TransformGetVersor(t, player_rot);

@@ -4,6 +4,8 @@
 
 #include "MLScript.h"
 
+typedef struct Game Game;
+
 typedef struct ScriptManager
 {
 	// DynArray<Script*>
@@ -26,3 +28,5 @@ ScriptManager MLScriptManagerCreate();
 void MLScriptManagerDestroy(ScriptManager* manager);
 
 MLScript* MLScriptManagetGet(ScriptManager* manager, Script_t script_type);
+
+ScriptManager* MLScriptManager(Game* game);

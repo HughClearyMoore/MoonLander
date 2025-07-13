@@ -27,6 +27,8 @@ set(HEADERS
     "include/systems/RenderingSystem.h"
     "include/systems/ScriptSystem.h"
     "include/systems/NameSystem.h"
+    "include/MLSceneManager.h"
+    "include/MLScene.h"
 )
 
 set(SOURCES
@@ -53,6 +55,8 @@ set(SOURCES
     "systems/RenderingSystem.c"
     "systems/ScriptSystem.c"
     "systems/NameSystem.c"
+    "MLSceneManager.c"
+    "MLScene.c"
 )
 
 set(DEFS
@@ -60,11 +64,13 @@ set(DEFS
     "defs/MLAssetTypes.defs"
     "defs/MLScripts.defs"
     "defs/MLComponents.defs"
+    "defs/MLScenes.defs"
 )
 
 add_subdirectory(include)
 add_subdirectory(components)
 add_subdirectory(scripts)
+add_subdirectory(scenes)
 
 
 target_sources(MoonLander PRIVATE ${HEADERS} ${SOURCES} ${DEFS})

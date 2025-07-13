@@ -11,6 +11,7 @@
 #include "MLMeshManager.h"
 #include "MLShaderProgramManager.h"
 #include "MLScriptManager.h"
+#include "MLSceneManager.h"
 #include "MLInput.h"
 #include "ECS/ECS.h"
 
@@ -25,7 +26,12 @@ typedef struct Game
 	ShaderProgramManager program_manager;
 	ScriptManager script_manager;
 	Input input;
-	ECS ecs;
+
+	struct
+	{
+		SceneManager scene_manager;
+	} managers;
+
 } Game;
 
 Game GameCreate(const size_t width, const size_t height, const char* title);
@@ -34,3 +40,5 @@ void GameDestroy(Game* game);
 void GameStart(Game* game);
 
 ECS* GameECS(Game* game);
+
+Entity_t GameCreateCamera(Game* game, Transform* transform);

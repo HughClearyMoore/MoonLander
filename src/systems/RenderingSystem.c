@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include <cglm/cglm.h>
+
 #include "MLCore.h"
 
 
@@ -45,9 +46,8 @@ static void RenderModel(Model* model, mat4 transform, mat4 view, mat4 proj)
 }
 
 
-RenderingSystem RenderingSystemCreate(Game* game)
-{
-	ECS* ecs = &game->ecs;
+RenderingSystem RenderingSystemCreate(Game* game, ECS* ecs)
+{	
 	RenderingSystem system = { 0 };
 	
 	Signature_t signature = 0;
@@ -55,35 +55,30 @@ RenderingSystem RenderingSystemCreate(Game* game)
 	signature |= 1 << ENUM_COMPONENT_Model;
 
 	system.system = MLECSNewSystem(ecs, signature);
+	system.camera = MAX_ENTITIES;
 
 	return system;
 }
 
-void RenderingSystemInitialise(RenderingSystem* rendering_system, Game* game)
-{
-	ECS* ecs = &game->ecs;	
-	// construct a camera
-
-	rendering_system->camera = MLECSNewEntity(ecs);
-
-	Transform transform = TransformIdentity();	
-
-	MLECSAttachComponentTransform(ecs, rendering_system->camera, &transform);
-
-	Script script = ScriptComponentCreate(game, SCRIPT_ENUM_PlayerScript);
-
-	MLECSAttachComponentScript(ecs, rendering_system->camera, &script);
-
-	//
-}
-
 void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double dt, double alpha)
 {
+	if (rendering_system->camera == MAX_ENTITIES)
+	{
+		// try to find the camera
+		Entity_t camera_id = NameSystemFind(game, "game_camera");
+
+		if (camera_id != MAX_ENTITIES)
+		{
+			rendering_system->camera = camera_id;
+		}
+
+		return;
+	}
 
 	const size_t sz = DynArraySize(&rendering_system->system->entities);
 
 	Entity_t* entities = (Entity_t*)rendering_system->system->entities.data;
-	ECS* ecs = &game->ecs;
+	ECS* ecs = GameECS(game);
 
 	//
 

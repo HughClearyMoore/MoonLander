@@ -23,6 +23,7 @@ void MLECSDestroy(ECS* ecs)
 	MLSystemManagerDestroy(ecs->managers.system_manager);
 
 	DynArrayDestroy(&ecs->queues.marked_for_death);
+	DynArrayDestroy(&ecs->queues.marked_for_life);
 
 	*ecs = (ECS){ 0 };
 }
@@ -106,8 +107,8 @@ MLSystem* MLECSNewSystem(ECS* ecs, Signature_t signature)
 
 void MLECSDestroyMarkedEntities(Game* game)
 {
-	DynArray* marked_for_death = &game->ecs.queues.marked_for_death;
-	ECS* ecs = &game->ecs;
+	ECS* ecs = GameECS(game);
+	DynArray* marked_for_death = &ecs->queues.marked_for_death;	
 
 	const size_t sz = DynArraySize(marked_for_death);
 
@@ -122,7 +123,7 @@ void MLECSDestroyMarkedEntities(Game* game)
 			script->script->destroy(game, e, script->context);			
 		}
 
-		game->ecs.managers.entity_manager->entity_statuses[e].alive = STI_FALSE;
+		ecs->managers.entity_manager->entity_statuses[e].alive = STI_FALSE;
 	}
 
 
@@ -140,8 +141,8 @@ void MLECSDestroyMarkedEntities(Game* game)
 
 void MLECSReadyMarkedEntities(Game* game)
 {
-	DynArray* marked = &game->ecs.queues.marked_for_life;
-	ECS* ecs = &game->ecs;
+	ECS* ecs = GameECS(game);
+	DynArray* marked = &ecs->queues.marked_for_life;	
 
 	while (DynArraySize(marked))
 	{
@@ -161,10 +162,10 @@ void MLECSReadyMarkedEntities(Game* game)
 
 PhysicsSystem* MLECSPhysicsSystem(Game* game)
 {
-	return &game->ecs.systems.physics;
+	return &GameECS(game)->systems.physics;	
 }
 
 EntityManager* MLECSEntityManager(Game* game)
 {
-	return game->ecs.managers.entity_manager;
+	return GameECS(game)->managers.entity_manager;	
 }

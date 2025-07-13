@@ -29,8 +29,9 @@ UPDATE_FUNCTION(TeapotScript)
 {
 	Input* input = GET_INPUT;
 	TeapotCtx* teapot = (TeapotCtx*)ctx;
+	ECS* ecs = GameECS(game_ctx);
 
-	Transform* t = MLECSGetComponentTransform(&game_ctx->ecs, entity);
+	Transform* t = MLECSGetComponentTransform(ecs, entity);
 
 	double scale = teapot->life_force / 100.0;
 	scale = scale < 0.0 ? 0.0 : scale;
@@ -39,7 +40,7 @@ UPDATE_FUNCTION(TeapotScript)
 	
 	if (scale <= 0.0)
 	{
-		MLECSDestroyEntity(&game_ctx->ecs, entity);
+		MLECSDestroyEntity(ecs, entity);
 	}
 
 
@@ -50,7 +51,7 @@ UPDATE_FUNCTION(TeapotScript)
 
 	if (input->keys[GLFW_KEY_LEFT_SHIFT].just_pressed)
 	{
-		Entity_t new_entity = MLECSNewEntity(&game_ctx->ecs);
+		Entity_t new_entity = MLECSNewEntity(ecs);
 
 		
 		vec3 direction = { cos(MakeRandom() * 2 * 3.141592653), sin(MakeRandom() * 2 * 3.141592653), sin(MakeRandom() * 2 * 3.141592653)};
@@ -73,22 +74,25 @@ UPDATE_FUNCTION(TeapotScript)
 
 		TransformUniformScale(&trans, MakeRandom() * 3 + 1.0);		
 
-		MLECSAttachComponentTransform(&game_ctx->ecs, new_entity, &trans);
+		MLECSAttachComponentTransform(ecs, new_entity, &trans);
 
 		Mesh* mesh = MLMeshManagerGetMesh(&game_ctx->mesh_manager, "cube");
 		ShaderProgram* program = MLShaderProgramManagerGetProgram(&game_ctx->program_manager, "basic");
 
 		Model model = CreateModel(mesh, program);
 
-		MLECSAttachComponentModel(&game_ctx->ecs, new_entity, &model);
+		MLECSAttachComponentModel(ecs, new_entity, &model);
 
 		dMass mass;
 		dMassSetBox(&mass, 1.0, 1.0, 1.0, 1.0);
 
-		RigidBody body = RigidBodyCreate(&game_ctx->ecs, new_entity, PhysicsSystemCurrentWorld(game_ctx), &mass);
+		RigidBody body = RigidBodyCreate(ecs, new_entity, PhysicsSystemCurrentWorld(game_ctx), &mass);
 
 		MLECSAttachComponentRigidBody(GameECS(game_ctx), new_entity, &body);
 
+		dSpaceID space_id = PhysicsSystemCurrentSpace(game_ctx);
+
+		printf("Cube space_id: %zu\n", (size_t)space_id);
 
 		// let's attempt the impossible
 		double box_scale = trans.scale.scale_x;

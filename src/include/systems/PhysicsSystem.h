@@ -12,6 +12,7 @@
 #define COLLISION_MAX_CONTACTS 8
 
 typedef struct Game Game;
+typedef struct ECS ECS;
 
 typedef struct CollisionTracking
 {
@@ -33,8 +34,8 @@ typedef struct PhysicsSystem
 
 } PhysicsSystem;
 
-PhysicsSystem PhysicsSystemCreate(Game* game);
-void PhysicsSystemDestroy(Game* game);
+PhysicsSystem PhysicsSystemCreate(Game* game, ECS* ecs);
+void PhysicsSystemDestroy(Game* game, ECS* ecs);
 
 void PhysicsSystemUpdate(Game* game, PhysicsSystem* physics_system, double dt);
 dSpaceID PhysicsSystemCurrentSpace(Game* game);

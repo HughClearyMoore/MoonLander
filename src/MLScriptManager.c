@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include "MLCore.h"
+
 #define SCRIPT(name) case SCRIPT_ENUM_##name: return #name;
 const char* MLGetScriptName(Script_t script_type)
 {
@@ -54,4 +56,9 @@ void MLScriptManagerDestroy(ScriptManager* manager)
 MLScript* MLScriptManagetGet(ScriptManager* manager, Script_t script_type)
 {
 	return *(MLScript**)DynArrayGet(&manager->scripts, script_type);
+}
+
+ScriptManager* MLScriptManager(Game* game)
+{
+	return &game->script_manager;
 }

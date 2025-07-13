@@ -20,8 +20,7 @@ typedef struct ECS
 	{
 		EntityManager* entity_manager;
 		ComponentManager* component_manager;
-		SystemManager* system_manager;
-		ScriptManager* script_manager;
+		SystemManager* system_manager;		
 	} managers;
 
 	struct

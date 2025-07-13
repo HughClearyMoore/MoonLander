@@ -99,20 +99,21 @@ static inline void CallOnStayScript(Game* game, Entity_t e1, Entity_t e2)
 	}
 }
 
-PhysicsSystem PhysicsSystemCreate(Game* game)
+PhysicsSystem PhysicsSystemCreate(Game* game, ECS* ecs)
 {
 	PhysicsSystem system = { 0 };
 	Signature_t signature = 0;
+
 	signature |= 1 << ENUM_COMPONENT_Transform;
 	signature |= 1 << ENUM_COMPONENT_RigidBody;
 
-	system.system = MLECSNewSystem(&game->ecs, signature);
+	system.system = MLECSNewSystem(ecs, signature);
 
 	signature = 0;
 	signature |= 1 << ENUM_COMPONENT_Collider;
-	system.collision_system = MLECSNewSystem(&game->ecs, signature);
+	system.collision_system = MLECSNewSystem(ecs, signature);
 
-	dInitODE2(0);
+	//dInitODE2(0);
 
 	system.joint_group = dJointGroupCreate(0);
 	system.world = dWorldCreate();
@@ -134,9 +135,9 @@ PhysicsSystem PhysicsSystemCreate(Game* game)
 	return system;
 }
 
-void PhysicsSystemDestroy(Game* game)
+void PhysicsSystemDestroy(Game* game, ECS* ecs)
 {
-	PhysicsSystem* physics_system = &game->ecs.systems.physics;
+	PhysicsSystem* physics_system = &ecs->systems.physics;
 
 	//Entity_t* entities = physics_system->system->entities.data;
 	//const size_t sz = DynArraySize(&physics_system->system->entities);
@@ -149,20 +150,20 @@ void PhysicsSystemDestroy(Game* game)
 	{
 		Entity_t* entity = DynArrayBack(&physics_system->collision_system->entities);
 
-		MLECSRemoveComponentCollider(&game->ecs, *entity);
+		MLECSRemoveComponentCollider(ecs, *entity);
 	}
 
 	while (DynArraySize(&physics_system->system->entities) > 0)
 	{
 		Entity_t* entity = DynArrayBack(&physics_system->system->entities);
 		
-		MLECSRemoveComponentRigidBody(&game->ecs, *entity);	
+		MLECSRemoveComponentRigidBody(ecs, *entity);	
 	}
 
 	dJointGroupDestroy(physics_system->joint_group);
 	dSpaceDestroy(physics_system->space);
 	dWorldDestroy(physics_system->world);
-	dCloseODE();
+	//dCloseODE();
 }
 
 static void ClearCollisionPairs(PhysicsSystem* physics_system)
@@ -330,7 +331,7 @@ static void CollisionCallback(void* data, dGeomID o1, dGeomID o2)
 void PhysicsSystemUpdate(Game* game, PhysicsSystem* physics_system, double dt)
 {
 	MLSystem* system = physics_system->system;
-	ECS* ecs = &game->ecs;
+	ECS* ecs = GameECS(game);
 
 	const size_t sz = DynArraySize(&system->entities);
 	Entity_t* entities = system->entities.data;
