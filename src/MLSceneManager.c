@@ -161,6 +161,18 @@ void SceneManagerSwitch(SceneManager* scene_manager, Game* game, const char* nam
 	scene_manager->next = new_scene;
 }
 
+void SceneManagerSwitchAndDestroy(SceneManager* scene_manager, Game* game, const char* name)
+{
+	Scene* old = scene_manager->current;
+
+	SceneManagerSwitch(scene_manager, game, name);
+
+	if (old)
+	{
+		SceneManagerDestroyScene(scene_manager, game, old);
+	}
+}
+
 SceneManager* GameSceneManager(Game* game)
 {
 	return &game->managers.scene_manager;

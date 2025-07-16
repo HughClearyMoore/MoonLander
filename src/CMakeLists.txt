@@ -29,6 +29,8 @@ set(HEADERS
     "include/systems/NameSystem.h"
     "include/MLSceneManager.h"
     "include/MLScene.h"
+    "include/MLTextureManager.h"
+    "include/MLSTB.h"
 )
 
 set(SOURCES
@@ -57,6 +59,8 @@ set(SOURCES
     "systems/NameSystem.c"
     "MLSceneManager.c"
     "MLScene.c"
+    "MLTextureManager.c"
+    "MLSTB.c"
 )
 
 set(DEFS

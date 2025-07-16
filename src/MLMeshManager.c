@@ -46,7 +46,13 @@ void MLMeshManagerAddMesh(MeshManager* manager, Mesh mesh, const char* name)
 	// a vertex has 3 parts the vertex (first 3) the normals (next 3) the uvs (next 2)
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, mesh.vertex_byte_size, (void*)0);
+
+	// I think it fills them if it doesn' find them?
+	// so
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, mesh.vertex_byte_size, (void*)((3 + 3) * (sizeof(float))));
+
 	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
 	
 	glBindVertexArray(0);
 

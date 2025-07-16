@@ -57,6 +57,8 @@ add_executable(MoonLander "${CMAKE_SOURCE_DIR}/src/MoonLander.c")
 
 add_subdirectory(src)
 
+target_include_directories(MoonLander PRIVATE external)
+
 target_link_libraries(MoonLander PRIVATE STI glfw glad cglm OpenGL::GL ODE)
 
 

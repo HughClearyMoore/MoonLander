@@ -19,7 +19,7 @@ SCENE_READY_FUNCTION(Main)
 	Mesh* teapot_mesh = MLMeshManagerGetMesh(&game->mesh_manager, "teapot");
 	ShaderProgram* program = MLShaderProgramManagerGetProgram(&game->program_manager, "basic");
 
-	Model teapot_model = CreateModel(teapot_mesh, program);
+	Model teapot_model = CreateModel3D(teapot_mesh, program, NULL);
 
 	MLECSAttachComponentModel(ecs, teapot, &teapot_model);
 
@@ -34,8 +34,7 @@ SCENE_READY_FUNCTION(Main)
 
 	Entity_t terrain = MLECSNewEntity(ecs);
 
-	Mesh* plane_mesh = MLMeshManagerGetMesh(&game->mesh_manager, "plane");
-	Model plane_model = CreateModel(plane_mesh, program);
+	Model plane_model = CreateModel3DHelper(game, "plane", "model_3d", "moon_texture");
 
 	MLECSAttachComponentModel(ecs, terrain, &plane_model);
 
@@ -78,6 +77,7 @@ SCENE_READY_FUNCTION(Main)
 SCENE_UPDATE_FUNCTION(Main)
 {
 	MainSceneContext* main_scene = (MainSceneContext*)context;
+	Input* input = GameInput(game);
 
 	main_scene->x += 1;
 
@@ -85,6 +85,16 @@ SCENE_UPDATE_FUNCTION(Main)
 	{
 		printf("updating!\n");
 		main_scene->x = 0;
+	}
+
+
+
+	if (input->keys[GLFW_KEY_ENTER].just_pressed)
+	{
+		SceneManager* sm = GameSceneManager(game);
+
+		SceneManagerSwitch(sm, game, "Test");
+
 	}
 }
 

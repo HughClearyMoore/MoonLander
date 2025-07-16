@@ -15,6 +15,8 @@
 #include "MLTypes.h"
 #include "MLShader.h"
 
+#include "MLSTB.h"
+
 
 
 #define X(item) item,
@@ -242,7 +244,21 @@ void LoadAssetMESH(Game* game_ctx, AssetReference* asset_reference)
 
 void LoadAssetTEXTURE(Game* game_ctx, AssetReference* asset_reference)
 {
-	
+	int width, height, channels;
+	stbi_set_flip_vertically_on_load(1);
+	unsigned char* data = stbi_load(asset_reference->file_path.data, &width, &height, &channels, 4);
+	stbi_set_flip_vertically_on_load(0);
+
+	assert(data);
+
+	printf("First pixel: R=%d G=%d B=%d A=%d\n",
+		data[0], data[1], data[2], data[3]);
+
+	MLTextureManager* texture_manager = &game_ctx->managers.texture_manager;
+
+	MLTextureManagerInsert(texture_manager, asset_reference->asset_name.data, data, width, height);
+
+	stbi_image_free(data);
 }
 
 void LoadAssetSHADER(Game* game_ctx, AssetReference* asset_reference)

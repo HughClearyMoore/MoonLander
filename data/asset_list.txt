@@ -5,3 +5,6 @@
 "MESH" "test" "../data/meshes/test.obj"
 "SHADER" "basic" "../data/shaders/basic.txt"
 "MESH" "plane" "../data/meshes/plane.obj"
+"SHADER" "model_3d" "../data/shaders/model_3d.txt"
+"TEXTURE" "moon_texture" "../data/textures/moon_texture.png"
+"TEXTURE" "white_test" "../data/textures/white_test.png"

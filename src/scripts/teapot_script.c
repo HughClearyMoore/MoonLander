@@ -79,7 +79,7 @@ UPDATE_FUNCTION(TeapotScript)
 		Mesh* mesh = MLMeshManagerGetMesh(&game_ctx->mesh_manager, "cube");
 		ShaderProgram* program = MLShaderProgramManagerGetProgram(&game_ctx->program_manager, "basic");
 
-		Model model = CreateModel(mesh, program);
+		Model model = CreateModel3D(mesh, program, NULL);
 
 		MLECSAttachComponentModel(ecs, new_entity, &model);
 

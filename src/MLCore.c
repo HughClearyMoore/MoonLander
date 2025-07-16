@@ -71,6 +71,7 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 	game.program_manager = MLShaderProgramManagerCreate();
 	game.script_manager = MLScriptManagerCreate();
 	game.managers.scene_manager = SceneManagerCreate();
+	game.managers.texture_manager = MLTextureManagerCreate();
 
 	MLLoadAssets(&game);
 	
@@ -88,6 +89,7 @@ void GameDestroy(Game* game)
 	MLScriptManagerDestroy(&game->script_manager);
 	MLShaderProgramManagerDestroy(&game->program_manager);
 	MLMeshManagerDestroy(&game->mesh_manager);
+	MLTextureManagerDestroy(&game->managers.texture_manager);
 
 	glfwDestroyWindow(game->window);
 	STIStringDestroy(&game->title);
@@ -99,6 +101,11 @@ void GameDestroy(Game* game)
 ECS* GameECS(Game* game)
 {
 	return game->managers.scene_manager.current->ecs;	
+}
+
+Input* GameInput(Game* game)
+{
+	return &game->input;
 }
 
 void GameStart(Game* game)
@@ -151,6 +158,8 @@ void GameStart(Game* game)
 		MLECSReadyMarkedEntities(game);
 
 		SceneManagerUpdate(&game->managers.scene_manager, game, frame_time);
+		ecs = GameECS(game);
+
 		ScriptSystemUpdate(game, &ecs->systems.scripts, frame_time);
 
 		if (accumulator >= fixed_dt)
@@ -177,9 +186,9 @@ Entity_t GameCreateCamera(Game* game, Transform* transform)
 
 	MLECSAttachComponentTransform(ecs, camera, transform);
 
-	Name name = NameComponentCreate("game_camera");
+	RenderingSystem* rs = &ecs->systems.rendering;
 
-	MLECSAttachComponentName(ecs, camera, &name);
+	rs->camera = camera;
 
 	return camera;
 }

@@ -14,3 +14,5 @@ typedef struct RenderingSystem
 RenderingSystem RenderingSystemCreate(Game* game, ECS* ecs);
 
 void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double dt, double alpha);
+
+void RenderingSystemSetCamera(RenderingSystem* rendering_system, Entity_t camera_entity);

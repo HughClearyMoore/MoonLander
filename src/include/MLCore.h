@@ -12,6 +12,7 @@
 #include "MLShaderProgramManager.h"
 #include "MLScriptManager.h"
 #include "MLSceneManager.h"
+#include "MLTextureManager.h"
 #include "MLInput.h"
 #include "ECS/ECS.h"
 
@@ -30,6 +31,7 @@ typedef struct Game
 	struct
 	{
 		SceneManager scene_manager;
+		MLTextureManager texture_manager;
 	} managers;
 
 } Game;
@@ -40,5 +42,7 @@ void GameDestroy(Game* game);
 void GameStart(Game* game);
 
 ECS* GameECS(Game* game);
+
+Input* GameInput(Game* game);
 
 Entity_t GameCreateCamera(Game* game, Transform* transform);
