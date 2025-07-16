@@ -23,6 +23,8 @@ READY_FUNCTION(TeapotScript)
 	printf("I, the Teapot, have been born!\n");
 	
 	teapot->life_force = 100.0;
+
+	printf("teapot id is: %d\n", entity);
 }
 
 UPDATE_FUNCTION(TeapotScript)
@@ -30,7 +32,7 @@ UPDATE_FUNCTION(TeapotScript)
 	Input* input = GET_INPUT;
 	TeapotCtx* teapot = (TeapotCtx*)ctx;
 	ECS* ecs = GameECS(game_ctx);
-
+	
 	Transform* t = MLECSGetComponentTransform(ecs, entity);
 
 	double scale = teapot->life_force / 100.0;
@@ -108,5 +110,5 @@ UPDATE_FUNCTION(TeapotScript)
 
 DESTROY_FUNCTION(TeapotScript)
 {
-	printf("I, the Teapot, have been eviscerated!\n");
+	printf("I, the Teapot, have been eviscerated! %d\n", entity);
 }

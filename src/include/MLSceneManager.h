@@ -22,6 +22,7 @@ void SceneManagerDestroy(SceneManager* scene_manager);
 Scene* SceneManagerCreateScene(SceneManager* scene_manager, Game* game, const char* name);
 void SceneManagerDestroyScene(SceneManager* scene_manager, Game* game, Scene* scene);
 void SceneManagerUpdate(SceneManager* scene_manager, Game* game, double dt);
+
 void SceneManagerSetScene(SceneManager* scene_manager, Game* game, const char* name);
 
 void SceneManagerSwitch(SceneManager* scene_manager, Game* game, const char* name);

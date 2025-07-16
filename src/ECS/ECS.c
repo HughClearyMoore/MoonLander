@@ -33,6 +33,8 @@ Entity_t MLECSNewEntity(ECS* ecs)
 	Entity_t e = MLEntityManagerNewEntity(ecs->managers.entity_manager);
 	DynArrayPush(&ecs->queues.marked_for_life, &e);
 
+	printf("constructed new entity %d\n", e);
+
 	return e;
 }
 
@@ -124,6 +126,8 @@ void MLECSDestroyMarkedEntities(Game* game)
 		}
 
 		ecs->managers.entity_manager->entity_statuses[e].alive = STI_FALSE;
+
+		printf("Destroyed entity: %d\n", e);
 	}
 
 

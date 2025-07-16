@@ -45,3 +45,13 @@ SCENE_DESTROY_FUNCTION(Test)
 {
 
 }
+
+SCENE_ENTER_FUNCTION(Test)
+{
+
+}
+
+SCENE_EXIT_FUNCTION(Test)
+{
+
+}

@@ -15,6 +15,8 @@ static void RegisterSceneFactories(HashMap* map)
 	scene.callbacks.ready = &SceneReady##scene_name; \
 	scene.callbacks.update = &SceneUpdate##scene_name; \
 	scene.callbacks.destroy = &SceneDestroy##scene_name; \
+	scene.callbacks.enter = &SceneEnter##scene_name; \
+	scene.callbacks.exit = &SceneExit##scene_name; \
 	HashMapInsert(map, scene.name.data, &scene); \
 	scene = (Scene){ 0 };
 
@@ -114,6 +116,7 @@ Scene* SceneManagerCreateScene(SceneManager* scene_manager, Game* game, const ch
 
 void SceneManagerDestroyScene(SceneManager* scene_manager, Game* game, Scene* scene)
 {
+	scene->callbacks.exit(game, scene->context);
 	scene->callbacks.destroy(game, scene->context);
 
 	UninitialiseECSSystems(game, scene->ecs);
@@ -161,6 +164,31 @@ void SceneManagerSwitch(SceneManager* scene_manager, Game* game, const char* nam
 	scene_manager->next = new_scene;
 }
 
+void SceneManagerSetScene(SceneManager* scene_manager, Game* game, const char* name)
+{
+	const size_t sz = DynArraySize(&scene_manager->live_scenes);
+
+	Scene** live_scenes = scene_manager->live_scenes.data;
+
+	for (size_t i = 0; i < sz; ++i)
+	{
+		Scene* scene = live_scenes[i];
+
+		if (strcmp(scene->name.data, name) == 0)
+		{
+			scene_manager->current = scene;
+			return;
+		}
+	}
+
+	Scene* new_scene = SceneManagerCreateScene(scene_manager, game, name);
+
+	scene_manager->current = new_scene;
+	scene_manager->current->callbacks.ready(game, scene_manager->current->context);
+	scene_manager->current->is_ready = STI_TRUE;
+	scene_manager->current->callbacks.enter(game, scene_manager->current->context);
+}
+
 void SceneManagerSwitchAndDestroy(SceneManager* scene_manager, Game* game, const char* name)
 {
 	Scene* old = scene_manager->current;
@@ -187,7 +215,8 @@ void SceneManagerUpdate(SceneManager* scene_manager, Game* game, double dt)
 	{
 		if (current)
 		{
-			current->callbacks.destroy(game, current->context);
+			current->callbacks.exit(game, current->context);
+			//current->callbacks.destroy(game, current->context);
 		}
 
 		scene_manager->current = next;
@@ -197,31 +226,13 @@ void SceneManagerUpdate(SceneManager* scene_manager, Game* game, double dt)
 		{
 			scene_manager->current->callbacks.ready(game, scene_manager->current->context);
 			scene_manager->current->is_ready = STI_TRUE;
-		}		
+		}
+
+		scene_manager->current->callbacks.enter(game, scene_manager->current->context);
 	}
 
 	if (scene_manager->current)
 	{
 		scene_manager->current->callbacks.update(game, scene_manager->current->context, dt);
 	}	
-}
-
-void SceneManagerSetScene(SceneManager* scene_manager, Game* game, const char* name)
-{
-	if (scene_manager->current != NULL && strcmp(scene_manager->current->name.data, name) == 0)
-	{
-		return;
-	}
-
-	Scene* scene = SceneManagerCreateScene(scene_manager, game, name);
-
-	if (scene_manager->current)
-	{
-		scene_manager->current->callbacks.destroy(game, scene_manager->current->context);
-	}
-
-	scene_manager->current = scene;
-	scene_manager->next = NULL;
-
-	scene_manager->current->callbacks.ready(game, scene_manager->current->context);
 }

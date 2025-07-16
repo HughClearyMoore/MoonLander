@@ -1,5 +1,7 @@
 #include "scenes/main_scene.h"
 
+#include <stdio.h>
+
 #include "MLScene.h"
 
 #include "MLCore.h"
@@ -83,7 +85,7 @@ SCENE_UPDATE_FUNCTION(Main)
 
 	if (main_scene->x >= 100)
 	{
-		printf("updating!\n");
+		//printf("updating!\n");
 		main_scene->x = 0;
 	}
 
@@ -101,4 +103,14 @@ SCENE_UPDATE_FUNCTION(Main)
 SCENE_DESTROY_FUNCTION(Main)
 {
 
+}
+
+SCENE_ENTER_FUNCTION(Main)
+{
+	printf("main scene entered!\n");
+}
+
+SCENE_EXIT_FUNCTION(Main)
+{
+	printf("main scene exited!\n");
 }

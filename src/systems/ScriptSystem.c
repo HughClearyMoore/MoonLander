@@ -19,7 +19,6 @@ void ScriptSystemUpdate(Game* game, ScriptSystem* system, double dt)
 
 	const size_t sz = DynArraySize(&system->system->entities);
 
-
 	for (size_t i = 0; i < sz; ++i)
 	{
 		Entity_t e = entities[i];

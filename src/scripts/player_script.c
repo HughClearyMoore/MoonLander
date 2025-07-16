@@ -48,7 +48,7 @@ READY_FUNCTION(PlayerScript)
 
 UPDATE_FUNCTION(PlayerScript)
 {
-	PlayerContext* player_ctx = (PlayerContext*)ctx;	
+	PlayerContext* player_ctx = (PlayerContext*)ctx;
 	Input* input = GET_INPUT;
 	ECS* ecs = GameECS(game_ctx);
 

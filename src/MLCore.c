@@ -132,10 +132,9 @@ void GameStart(Game* game)
 #endif
 
 	//
-	SceneManagerSetScene(GameSceneManager(game),
-		game,
-		"Main");
+	SceneManagerSetScene(GameSceneManager(game), game, "Main");	
 	//
+
 	const double physics_frequency = 60;
 	const double fixed_dt = 1 / physics_frequency;
 
