@@ -25,6 +25,29 @@ SCENE_READY_FUNCTION(Test)
 	Script player_script = ScriptComponentCreate(game, SCRIPT_ENUM_PlayerScript);
 
 	MLECSAttachComponentScript(ecs, camera, &player_script);
+
+
+
+	Entity_t teapot = MLECSNewEntity(ecs);
+
+	Model teapot_model = CreateModel3DHelper(game, "teapot", "basic", NULL);
+
+	MLECSAttachComponentModel(ecs, teapot, &teapot_model);
+
+	Transform teapot_transform = TransformIdentity();
+
+	teapot_transform.position.x += 5.0;
+
+	MLECSAttachComponentTransform(ecs, teapot, &teapot_transform);
+
+	Name teapot_name = NameComponentCreate("teapot");
+
+	MLECSAttachComponentName(ecs, teapot, &teapot_name);
+
+	Script teapot_script = ScriptComponentCreate(game, SCRIPT_ENUM_TeapotScript);
+
+	MLECSAttachComponentScript(ecs, teapot, &teapot_script);
+
 }
 
 SCENE_UPDATE_FUNCTION(Test)

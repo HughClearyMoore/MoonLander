@@ -156,7 +156,7 @@ void GameStart(Game* game)
 		glfwPollEvents();
 		MLECSReadyMarkedEntities(game);
 
-		SceneManagerUpdate(&game->managers.scene_manager, game, frame_time);
+		
 		ecs = GameECS(game);
 
 		ScriptSystemUpdate(game, &ecs->systems.scripts, frame_time);
@@ -166,15 +166,16 @@ void GameStart(Game* game)
 			PhysicsSystemUpdate(game, &ecs->systems.physics, fixed_dt);
 			accumulator -= fixed_dt;
 		}		
-
 		
-		MLECSDestroyMarkedEntities(game);
-		MLInputResetMarked(&game->input);
-
+		MLECSDestroyMarkedEntities(game);				
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		RenderingSystemUpdate(game, &ecs->systems.rendering, frame_time, accumulator / fixed_dt);
 		glfwSwapBuffers(game->window);
+
+		SceneManagerUpdate(&game->managers.scene_manager, game, frame_time);
+
+		MLInputResetMarked(&game->input);
 	}
 }
 
