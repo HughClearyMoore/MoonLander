@@ -112,3 +112,17 @@ DESTROY_FUNCTION(TeapotScript)
 {
 	printf("I, the Teapot, have been eviscerated! %d\n", entity);
 }
+
+FRAME_DRAW_FUNCTION(TeapotScript)
+{
+	TeapotCtx* teapot = (TeapotCtx*)ctx;
+
+	if (teapot->x++ == 100)
+	{
+		printf("teapot is being drawn!\n");
+
+		teapot->x = 0;
+	}
+
+	return 0x0;
+}

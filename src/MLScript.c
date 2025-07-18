@@ -27,6 +27,10 @@
 	scr.collision_exit = &OnCollisionExit##name;
 
 
+#undef SCRIPT_HAS_FRAME_DRAW(name)
+#define SCRIPT_HAS_FRAME_DRAW(name) \
+	scr.frame_draw = &OnFrameDraw##name;
+
 #undef SCRIPT_END
 #define SCRIPT_END \
 	return scr; \
@@ -51,4 +55,7 @@
 
 #undef SCRIPT_HAS_COLLISION_EXIT
 #define SCRIPT_HAS_COLLISION_EXIT(name)
+
+#undef SCRIPT_HAS_FRAME_DRAW
+#define SCRIPT_HAS_FRAME_DRAW(name)
 

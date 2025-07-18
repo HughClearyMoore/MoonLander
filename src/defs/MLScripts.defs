@@ -56,6 +56,7 @@ SCRIPT_END
 
 SCRIPT(TeapotScript)
 SCRIPT_HAS_UPDATE(TeapotScript)
+SCRIPT_HAS_FRAME_DRAW(TeapotScript)
 SCRIPT_END
 
 SCRIPT(ElephantScript)

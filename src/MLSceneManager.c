@@ -30,6 +30,8 @@ static void SceneDeleter(void* scene_ptr)
 {
 	Scene* scene = *(Scene**)scene_ptr;
 
+	MLECSDestroy(scene->ecs);
+
 	STIStringDestroy(&scene->name);
 	free(scene->context);
 

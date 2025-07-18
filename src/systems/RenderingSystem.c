@@ -144,6 +144,13 @@ void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double
 	{
 		Entity_t e = entities[i];
 
+		Script* script = MLECSGetComponentScript(ecs, e);
+
+		if (script && script->script->frame_draw && script->context)
+		{
+			script->script->frame_draw(game, e, script->context);
+		}
+
 		Model* model = MLECSGetComponentModel(ecs, e);
 		
 		mat4 interp_transform;

@@ -16,6 +16,8 @@ typedef void(*OnCollisionEnter_t)(Game* game_ctx, Entity_t entity, ScriptContext
 typedef void(*OnCollision_t)(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other);
 typedef void(*OnCollisionExit_t)(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other);
 
+typedef void(*OnFrameDraw_t)(Game* game_ctx, Entity_t entity, ScriptContext ctx);
+
 
 typedef struct MLScript
 {	
@@ -27,6 +29,8 @@ typedef struct MLScript
 	OnCollisionEnter_t collision_enter;
 	OnCollision_t collision;
 	OnCollisionExit_t collision_exit;
+
+	OnFrameDraw_t frame_draw;
 } MLScript;
 
 
@@ -52,6 +56,9 @@ typedef struct MLScript
 #define SCRIPT_HAS_COLLISION_EXIT(name) \
 	void OnCollisionExit##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other);
 
+#define SCRIPT_HAS_FRAME_DRAW(name) \
+	void OnFrameDraw##name(Game* game_ctx, Entity_t entity, ScriptContext ctx);
+
 #include "../defs/MLScripts.defs"
 
 #undef SCRIPT
@@ -69,6 +76,8 @@ typedef struct MLScript
 #undef SCRIPT_HAS_COLLISION_EXIT
 #define SCRIPT_HAS_COLLISION_EXIT(name)
 
+#undef SCRIPT_HAS_FRAME_DRAW
+#define SCRIPT_HAS_FRAME_DRAW(name)
 
 #define SCRIPT(name) \
 	MLScript ScriptLink##name();
@@ -84,6 +93,7 @@ typedef struct MLScript
 #define COLLISION_ENTER_FUNCTION(name) void OnCollisionEnter##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other)
 #define COLLISION_FUNCTION(name) void OnCollision##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other)
 #define COLLISION_EXIT_FUNCTION(name) void OnCollisionExit##name(Game* game_ctx, Entity_t entity, ScriptContext ctx, Entity_t other)
+#define FRAME_DRAW_FUNCTION(name) void OnFrameDraw##name(Game* game_ctx, Entity_t entity, ScriptContext ctx)
 
 #define GET_INPUT &game_ctx->input;
 
