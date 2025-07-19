@@ -146,16 +146,20 @@ void RenderingSystemUpdate(Game* game, RenderingSystem* rendering_system, double
 
 		Script* script = MLECSGetComponentScript(ecs, e);
 
-		if (script && script->script->frame_draw && script->context)
-		{
-			script->script->frame_draw(game, e, script->context);
-		}
-
 		Model* model = MLECSGetComponentModel(ecs, e);
 		
 		mat4 interp_transform;
 		TransformGetInterpolatedWorldTransform(ecs, e, alpha, interp_transform);
 
-		RenderModel(model, interp_transform, view, proj);
+		BindModel(model);
+
+		if (script && script->script->frame_draw && script->context)
+		{
+			script->script->frame_draw(game, e, script->context);
+		}
+
+		DrawModel(model, interp_transform, view, proj);
+
+		UnbindModel();		
 	}
 }
