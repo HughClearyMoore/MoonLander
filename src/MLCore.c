@@ -82,7 +82,7 @@ Game GameCreate(const size_t width, const size_t height, const char* title)
 
 void GameDestroy(Game* game)
 {
-	SceneManagerDestroy(&game->managers.scene_manager);
+	SceneManagerDestroy(game, &game->managers.scene_manager);
 
 	dCloseODE();
 

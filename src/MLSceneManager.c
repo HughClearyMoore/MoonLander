@@ -25,15 +25,48 @@ static void RegisterSceneFactories(HashMap* map)
 #undef SCENE	
 }
 
-
-static void SceneDeleter(void* scene_ptr)
+void UninitialiseECSSystems(Game* game, ECS* ecs)
 {
-	Scene* scene = *(Scene**)scene_ptr;
+	PhysicsSystemDestroy(game, ecs);
+}
 
+static void DeleteScene(Game* game, Scene* scene)
+{
+	Scene* old = game->managers.scene_manager.current;
+	game->managers.scene_manager.current = scene;
+
+	ECS* ecs = GameECS(game);
+
+	{
+		const size_t sz = DynArraySize(&scene->ecs->systems.scripts.system->entities);
+		Entity_t* entities = (Entity_t*)scene->ecs->systems.scripts.system->entities.data;
+
+		for (size_t i = 0; i < sz; ++i)
+		{
+			Entity_t e = entities[i];
+			Script* script = MLECSGetComponentScript(ecs, e);
+
+			if (script && script->script->destroy && script->context)
+			{
+				script->script->destroy(game, e, script->context);
+			}
+		}
+	}
+
+
+	UninitialiseECSSystems(game, GameECS(game));
 	MLECSDestroy(scene->ecs);
-
 	STIStringDestroy(&scene->name);
 	free(scene->context);
+
+	if (old != scene)
+	{
+		game->managers.scene_manager.current = old;
+	}
+	else
+	{
+		game->managers.scene_manager.current = NULL;
+	}
 
 	free(scene);
 }
@@ -58,16 +91,32 @@ SceneManager SceneManagerCreate()
 		&FactoryDeleter
 	);	
 
-	manager.live_scenes = DynArrayCreate(sizeof(Scene*), 0, &SceneDeleter);
+	manager.live_scenes = DynArrayCreate(sizeof(Scene*), 0, NULL);
 
 	RegisterSceneFactories(&manager.scene_factory);
 
 	return manager;
 }
 
-void SceneManagerDestroy(SceneManager* scene_manager)
+void SceneManagerDestroy(Game* game, SceneManager* scene_manager)
 {	
 	HashMapDestroy(&scene_manager->scene_factory);
+
+	const size_t sz = DynArraySize(&scene_manager->live_scenes);
+
+	for (size_t i = 0; i < sz; ++i)
+	{
+		Scene* scene = *(Scene**)DynArrayGet(&scene_manager->live_scenes, i);
+
+		game->managers.scene_manager.current = scene;		
+
+
+		scene->callbacks.destroy(game, scene->context);
+
+		DeleteScene(game, scene);
+	}
+
+
 	DynArrayDestroy(&scene_manager->live_scenes);
 }
 
@@ -77,11 +126,6 @@ void InitialiseECSSystems(Game* game, ECS* ecs)
 	ecs->systems.physics = PhysicsSystemCreate(game, ecs);
 	ecs->systems.scripts = ScriptSystemCreate(game, ecs);
 	ecs->systems.names = NameSystemCreate(game, ecs);
-}
-
-void UninitialiseECSSystems(Game* game, ECS* ecs)
-{
-	PhysicsSystemDestroy(game, ecs);
 }
 
 Scene* SceneManagerCreateScene(SceneManager* scene_manager, Game* game, const char* name)
@@ -117,12 +161,8 @@ Scene* SceneManagerCreateScene(SceneManager* scene_manager, Game* game, const ch
 }
 
 void SceneManagerDestroyScene(SceneManager* scene_manager, Game* game, Scene* scene)
-{
-	scene->callbacks.exit(game, scene->context);
+{	
 	scene->callbacks.destroy(game, scene->context);
-
-	UninitialiseECSSystems(game, scene->ecs);
-	MLECSDestroy(scene->ecs);
 
 	const size_t sz = DynArraySize(&scene_manager->live_scenes);
 	Scene** scene_ptr = scene_manager->live_scenes.data;
@@ -137,12 +177,15 @@ void SceneManagerDestroyScene(SceneManager* scene_manager, Game* game, Scene* sc
 			const size_t back_index = sz - 1;
 
 			DynArraySwap(&scene_manager->live_scenes, i, back_index, Scene*);
+
+			DeleteScene(game, scene);
+
 			DynArrayPopBack(&scene_manager->live_scenes);
 			break;
 		}
 	}
 
-	free(scene->ecs);
+	//free(scene->ecs);
 }
 
 void SceneManagerSwitch(SceneManager* scene_manager, Game* game, const char* name)

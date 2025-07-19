@@ -18,7 +18,7 @@ typedef struct SceneManager
 } SceneManager;
 
 SceneManager SceneManagerCreate();
-void SceneManagerDestroy(SceneManager* scene_manager);
+void SceneManagerDestroy(Game* game, SceneManager* scene_manager);
 Scene* SceneManagerCreateScene(SceneManager* scene_manager, Game* game, const char* name);
 void SceneManagerDestroyScene(SceneManager* scene_manager, Game* game, Scene* scene);
 void SceneManagerUpdate(SceneManager* scene_manager, Game* game, double dt);
